@@ -221,6 +221,7 @@ body {
   cursor: pointer;
 }
 
+/* Progressive Image Fade-In without changing layout dimensions */
 .image-card img {
   max-width: 48vw;
   height: auto;
@@ -230,6 +231,12 @@ body {
   border-radius: 0;
   display: block;
   box-shadow: 10px 10px 25px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  transition: opacity 0.35 ease-in-out;
+}
+
+.image-card img.loaded {
+  opacity: 1;
 }
 
 /* Lightbox Modal Backdrop */

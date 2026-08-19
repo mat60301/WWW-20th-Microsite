@@ -50,7 +50,6 @@ document.addEventListener("DOMContentLoaded", () => {
     loadDriveImages();
   });
 
-  // Auto-fetch images on startup
   loadDriveImages();
   setupKeyboardControls();
   setupModal();
@@ -65,7 +64,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const items = await response.json();
 
       if (Array.isArray(items) && items.length > 0) {
-        hideStatus();
         initGallery(items);
       } else {
         showError("No images found in your Google Drive folder.");
@@ -80,6 +78,20 @@ document.addEventListener("DOMContentLoaded", () => {
     realImageCount = items.length;
     tocContainer.innerHTML = "";
     streamContainer.innerHTML = "";
+
+    let loadedCount = 0;
+    let statusHidden = false;
+    const targetLoadCount = Math.min(5, realImageCount);
+
+    const revealPage = () => {
+      if (!statusHidden) {
+        statusHidden = true;
+        hideStatus();
+      }
+    };
+
+    // Fallback safety timer: reveal page after 6 seconds even if network is slow
+    setTimeout(revealPage, 6000);
 
     // Build Table of Contents
     items.forEach((item, originalIndex) => {
@@ -134,15 +146,35 @@ document.addEventListener("DOMContentLoaded", () => {
       img.alt = cleanTitle;
       img.loading = "lazy";
 
-      img.onload = () => {
+      // Fade image in as it finishes loading & track first 5 loaded images
+      const onImageLoaded = () => {
+        img.classList.add("loaded");
+        loadedCount++;
+        
+        if (loadedCount >= targetLoadCount) {
+          revealPage();
+        }
+
         if (!isTicking) {
           requestAnimationFrame(updateWheelEffect);
           isTicking = true;
         }
       };
 
+      if (img.complete) {
+        onImageLoaded();
+      } else {
+        img.onload = onImageLoaded;
+        img.onerror = () => {
+          loadedCount++;
+          if (loadedCount >= targetLoadCount) revealPage();
+        };
+      }
+
       cardContainer.addEventListener("click", () => {
-        openModal(img);
+        if (img.classList.contains("loaded")) {
+          openModal(img);
+        }
       });
 
       cardContainer.appendChild(img);
