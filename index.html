@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://script.google.com https://script.googleusercontent.com; img-src 'self' blob: data: https://lh3.googleusercontent.com https://drive.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self';">
+  <title>Document & Image Viewer</title>
+
+  <!-- Google Fonts: Jost -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Loading & Error Overlay -->
+  <div id="status-overlay" class="status-overlay">
+    <div id="loading-spinner" class="spinner"></div>
+    <div id="error-box" class="error-box hidden">
+      <p id="error-message">Unable to load images from Google Drive.</p>
+      <button id="retry-btn" class="btn-retry">Try Again</button>
+    </div>
+  </div>
+
+  <div class="app-container">
+    <!-- Left Sidebar -->
+    <aside class="sidebar" aria-label="Table of Contents">
+      <div class="sidebar-header">
+        <img src="assets/www-logo.png" alt="Logo" class="sidebar-logo">
+        <h2>Table of Contents</h2>
+      </div>
+      
+      <nav id="toc" class="toc-list" role="navigation"></nav>
+
+      <div class="sidebar-footer">
+        <div class="shortcut-hint">Use <kbd>↑</kbd> <kbd>↓</kbd> arrows to navigate</div>
+      </div>
+    </aside>
+
+    <!-- Right Image Stream -->
+    <main id="image-stream" class="image-stream"></main>
+  </div>
+
+  <!-- Image Modal Backdrop -->
+  <div id="image-modal" class="modal-backdrop" role="dialog" aria-modal="true"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
