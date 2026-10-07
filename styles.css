@@ -1,10 +1,32 @@
+/* ==========================================================================
+   FONT DECLARATIONS (WOFF2)
+   ========================================================================== */
+@font-face {
+  font-family: 'Akzidenz Grotesk Pro';
+  src: url('fonts/AkzidGrtskProMedExt.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'EK Roumald Mono';
+  src: url('fonts/EKRoumaldMono-Roman.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --bg-color: #ffffff;
   --panel-bg: #ffffff;
   --text-main: #000000;
   --text-muted: #64748b;
   --accent-color: #921f1e;
-  --sidebar-width: 50vw;
+  --sidebar-width: 25%;
+  --font-heading: 'Akzidenz Grotesk Pro', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: 'EK Roumald Mono', monospace;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 * {
@@ -13,113 +35,254 @@
   padding: 0;
 }
 
+/* Hide scrollbars */
+* {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 body {
   font-family: 'Jost', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background-color: var(--bg-color);
   color: var(--text-main);
   height: 100vh;
+  width: 100%;
   overflow: hidden;
   text-transform: uppercase;
+}
+
+/* ==========================================================================
+   Loading Overlay & Animated SVG Container
+   ========================================================================== */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999; /* Higher than everything else on page */
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+  pointer-events: auto;
+}
+
+.loading-overlay.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none; /* Allows full interaction with site underneath */
+}
+
+/* Sizing Wrapper for SVG Loader Logo */
+.loading-logo-wrapper {
+  width: 260px;
+  height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-logo-wrapper svg,
+.loading-logo-svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Responsive adjustment for mobile screens */
+@media (max-width: 799px) {
+  .loading-logo-wrapper {
+    width: 200px;
+    height: 200px;
+  }
 }
 
 .app-container {
   display: flex;
   height: 100vh;
-  width: 100vw;
-  background-color: var(--bg-color);
+  width: 100%;
+/*  background-color: var(--bg-color);*/
+  overflow: hidden;
+  position: relative;
 }
 
-/* Status & Loading Overlay */
-.status-overlay {
-  position: fixed;
-  inset: 0;
-  background: var(--bg-color);
-  z-index: 100;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1.5rem;
-  padding: 2rem;
-  text-align: center;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-
-/* Loading Circle Spinner */
-.spinner {
-  width: 48px;
-  height: 48px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid var(--accent-color);
-  border-radius: 50%;
-  animation: spin 0.9s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Error Box State */
-.error-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.25rem;
-  max-width: 400px;
-}
-
-.error-box p {
-  color: var(--accent-color);
-  font-size: 1rem;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  line-height: 1.5;
-}
-
-.btn-retry {
-  background-color: var(--accent-color);
-  color: #ffffff;
-  font-family: inherit;
-  font-weight: 600;
-  text-transform: uppercase;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  letter-spacing: 0.05em;
-  transition: opacity 0.2s ease, transform 0.1s ease;
-}
-
-.btn-retry:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-/* Sidebar / TOC */
+/* Sidebar / TOC (Desktop 40%) */
 .sidebar {
   width: var(--sidebar-width);
-  background-color: var(--bg-color);
+/*  background-color: var(--bg-color);*/
   border-right: none;
   display: flex;
   flex-direction: column;
+  justify-content: center; /* Vertically centers header, list, and footer */
   flex-shrink: 0;
-  z-index: 10;
+  z-index: 100;
   text-align: center;
+  padding-left: 4rem;
+  padding-right: 2rem;
+  position: relative;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sidebar-header h2 {
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.sidebar-header h2:hover {
+  opacity: 0.65;
+}
+
+/* ==========================================================================
+   TOP BRANDING
+   ========================================================================== */
+.top-right-brand {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  font-family: var(--font-heading);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-main);
+  z-index: 999; /* Keeps it layered above all panels, drawers, and stages */
+  pointer-events: none !important;
+}
+
+.anniversary-corner-callout{
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  font-family: var(--font-heading);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-main);
+  z-index: 999; /* Keeps it layered above all panels, drawers, and stages */
+  pointer-events: none !important;
+}
+
+.bottom-left-callout {
+  position: fixed;
+  bottom: 1rem;
+  left: 1rem;
+  font-family: var(--font-heading);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--text-main);
+  text-transform: uppercase;
+  z-index: 1000;
+  pointer-events: auto;
+  text-decoration: none;
+}
+/* ==========================================================================
+   CENTERED BACKGROUND LOGO
+   ========================================================================== */
+.center-background-logo {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0; /* Placed behind sidebar (z-index > 0) and carousel images */
+  pointer-events: none; /* Allows clicks/scrolls to pass through to elements above */
+}
+
+.center-background-logo img {
+  width: 10vw; /* Adjust size to fit your design */
+  height: auto;
+  display: block;
+}
+
+/* Ensure foreground containers stack above the background logo */
+.app-container,
+.sidebar,
+.image-stream {
+  position: relative;
+  z-index: 1;
+}
+
+/* ==========================================================================
+   Scrollable Table of Contents & Sticky Fade Mask
+   ========================================================================== */
+.sidebar {
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar-header {
-  padding: 1.5rem 1.25rem 0.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: var(--bg-main, #ffffff); /* Keeps header solid above scrolling list */
+  padding-bottom: 0.5rem;
+}
+
+/* Scrollable Container limited to roughly 15 items (~360px to 420px depending on line height) */
+.toc-wrapper {
+  max-height: calc(15 * 1.8rem); /* Adjust multiplier to fit exactly 15 visible lines */
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch; /* Smooth touch swipe on iOS */
+  
+  /* Mask gradient so items fade out seamlessly as they scroll up behind the header */
+  mask-image: linear-gradient(to bottom, transparent 0%, black 12px, black 88%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 12px, black 88%, transparent 100%);
+}
+
+/* Hide scrollbar for a clean editorial look */
+.toc-wrapper::-webkit-scrollbar {
+  display: none;
+}
+.toc-wrapper {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Down Arrow Indicator */
+.toc-scroll-indicator {
+  text-align: left;
+  margin-left: 2rem;
+  font-size: 0.9rem;
+  padding: 0.4rem 0;
+  color: var(--text-main, #000000);
+  opacity: 1;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  pointer-events: auto; /* Changed from none to allow click events */
+  cursor: pointer;      /* Shows pointer cursor on hover */
+  user-select: none;
+}
+
+.toc-scroll-indicator.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* ==========================================================================
+   Content Area
+   ========================================================================== */
+.sidebar-header {
+  padding: 1.5rem 0 0.5rem;
   border-bottom: none;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start; /* Changed from center to flex-start */
+  width: 100%;
 }
 
 .sidebar-logo {
-  max-width: 280px;
-  max-height: 160px;
+  max-width: 264px;
+  max-height: 144px;
   width: auto;
   height: auto;
   margin-bottom: 0.75rem;
@@ -128,34 +291,40 @@ body {
 }
 
 .sidebar-header h2 {
+  font-family: var(--font-heading);
   font-size: 1.1rem;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--text-main);
   letter-spacing: 0.05em;
+  text-align: left; /* Changed from center to left */
+  padding-left: 10px; /* Aligns with .toc-item padding */
 }
 
 .toc-list {
-  flex: 1;
+  flex: 0 0 auto;
   overflow-y: auto;
   padding: 1rem 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start; /* Changed from center to flex-start */
+  width: 100%;
 }
 
 .toc-item {
+  font-family: var(--font-mono);
   display: block;
-  margin: 0.2rem 0;
-  padding: 0.4rem 10px;
-  color: var(--text-muted);
+  margin-bottom: 0rem; /* Sets vertical spacing between TOC entries */
+  padding: 0 10px;       /* Horizontal padding only so lines stay aligned */
+  color: var(--text-main);
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
+  line-height: 1.7rem;  /* Internal line-height matches the gap between entries */
   border-radius: 4px;
   transition: all 0.2s ease;
-  white-space: nowrap;
-  text-align: center;
-  letter-spacing: 0.03em;
-  font-weight: 400;
+  white-space: normal;
+  text-align: left;
+  letter-spacing: 0.1em;
+  font-weight: 500;
 }
 
 .toc-item:hover {
@@ -163,95 +332,165 @@ body {
   background-color: #f8fafc;
 }
 
-/* Active TOC Item */
 .toc-item.active {
   color: var(--accent-color);
   background-color: transparent;
-  font-size: 1.05rem;
-  font-weight: 400;
+  font-size: 1.1rem;
+  font-weight: 500;
+  line-height: 1.7rem;  /* Scaled line-height for the active larger font size */
 }
 
-/* Sidebar Footer & Shortcut Hints */
 .sidebar-footer {
-  padding: 1.25rem;
+  padding: 1rem 0;
   text-align: center;
 }
 
 .shortcut-hint {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: var(--text-muted);
   letter-spacing: 0.05em;
+  text-align: center;
+  display: none !important;
 }
 
 .shortcut-hint kbd {
   background-color: #ffffff;
   border: 1px solid #cbd5e1;
   border-radius: 3px;
-  padding: 1px 6px;
-  font-size: 0.75rem;
+  padding: 1px 5px;
+  font-size: 0.7rem;
   font-weight: 600;
   color: var(--accent-color);
   font-family: inherit;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-/* Stream Panel */
+/* Hide Mobile Drawer Button on Desktop */
+.drawer-toggle {
+  display: none;
+}
+
+/* Hide Mobile Backdrop on Desktop */
+.drawer-backdrop {
+  display: none;
+}
+
+/* Stream Panel (Desktop 70%) */
 .image-stream {
+  width: 75%;
   flex: 1;
   height: 100vh;
   overflow-y: scroll;
-  padding: 50vh 0;
+  overflow-x: hidden;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 15px;
-  background-color: var(--bg-color);
+  align-items: center;
+  gap: 10px;
+/*  background-color: var(--bg-color);*/
+  position: relative;
 }
 
 .image-card {
-  margin-left: 0;
   display: flex;
-  justify-content: flex-start;
+  justify-content: flex-end; /* Aligns the inner image to the right edge */
   background: transparent;
   border: none;
   box-shadow: none;
   padding: 0;
   will-change: transform, opacity;
-  transform-origin: 0% 50%;
+  transform-origin: 100% 50%; /* Anchors all scaling to the right edge */
+  cursor: default;
+  flex-shrink: 0;
+  width: 100%;
+}
+
+/* Card Media Wrapper for Positional Overlays */
+.card-media-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-left: auto;
+  margin-right: 0;
+}
+
+/* Base Ad Overlay Link */
+.ad-link-overlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 10;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+/* Positional Variations */
+.ad-link-overlay.ad-pos-full {
+  left: 0;
+  width: 100%;
+}
+
+.ad-link-overlay.ad-pos-left {
+  left: 0;
+  width: 50%;
+}
+
+.ad-link-overlay.ad-pos-right {
+  right: 0;
+  left: auto;
+  width: 50%;
+}
+
+/* Dynamic Cursors */
+/* Full ad card -> pointer everywhere */
+.image-card[data-ad-pos="full"] img {
   cursor: pointer;
 }
 
-/* Progressive Image Fade-In without changing layout dimensions */
-.image-card img {
-  max-width: 48vw;
-  height: auto;
-  max-height: 75vh;
-  object-fit: contain;
-  object-position: left center;
-  border-radius: 0;
-  display: block;
-  box-shadow: 10px 10px 25px rgba(0, 0, 0, 0.45);
-  opacity: 0;
-  transition: opacity 0.35 ease-in-out;
+/* Left ad -> pointer on left half, zoom-in on right content half */
+.image-card[data-ad-pos="left"] img {
+  cursor: zoom-in;
 }
 
-.image-card img.loaded {
+/* Right ad -> pointer on right half, zoom-in on left content half */
+.image-card[data-ad-pos="right"] img {
+  cursor: zoom-in;
+}
+
+.image-card img {
+  width: auto;
+  height: auto;
+  max-width: 75vw;
+  max-height: 95vh;
+  object-fit: contain;
+  margin-left: auto; /* Ensures flex alignment pushes it all the way to the right */
+  margin-right: 0;
+  border-radius: 0;
+  display: block;
+  box-shadow: none;
   opacity: 1;
 }
 
-/* Lightbox Modal Backdrop */
+/* Custom Zoom-In Cursor for Editorial Pages in Main Stream */
+.image-card:not(.has-ad-link) img {
+  cursor: zoom-in;
+}
+
+/* ==========================================================================
+   200% DIRECT ZOOM LIGHTBOX MODAL
+   ========================================================================== */
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.85);
-  z-index: 200;
-  cursor: pointer;
+  background-color: rgba(0, 0, 0, 0.88);
+  z-index: 2000;
   backdrop-filter: blur(4px);
-  
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.5s ease, visibility 0.5s ease;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
 }
 
 .modal-backdrop.active {
@@ -260,19 +499,224 @@ body {
   pointer-events: auto;
 }
 
-/* Dynamic Animated Image Clone */
-.expanding-clone {
+.modal-stage {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Pan Canvas Container */
+.modal-pan-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.modal-pan-container:active {
+  cursor: grabbing;
+}
+
+/* Zoomed Image in Modal */
+.modal-img-zoomed {
+  max-width: none;
+  height: auto;
+  display: block;
+  pointer-events: auto;
+  will-change: transform;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  -webkit-user-drag: none;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Pan Hint Indicator (Bottom Right Crossed Arrows) */
+.pan-hint-indicator {
   position: fixed;
-  z-index: 201;
-  object-fit: contain;
-  border-radius: 0;
-  box-shadow: 10px 10px 25px rgba(0, 0, 0, 0.45);
-  will-change: transform, box-shadow;
-  transform-origin: top left;
+  bottom: 2rem;
+  right: 2rem;
+  width: 44px;
+  height: 44px;
+  background-color: rgba(0, 0, 0, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2100;
+  pointer-events: none;
+  backdrop-filter: blur(4px);
+  color: #ffffff;
+  transition: opacity 0.3s ease;
+}
+
+.pan-hint-indicator svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+
+/* Fixed Top Right Close Button */
+.modal-close-btn {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  width: 44px;
+  height: 44px;
+  background-color: rgba(0, 0, 0, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  opacity: 1 !important;
+  z-index: 2100;
+  backdrop-filter: blur(4px);
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.modal-close-btn:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+  border-color: #ffffff;
+  transform: scale(1.08);
+}
+
+@media (max-width: 799px) {
+  .modal-close-btn {
+    top: 1rem;
+    right: 1rem;
+    width: 38px;
+    height: 38px;
+    font-size: 1rem;
+  }
 }
 
 .hidden {
   display: none !important;
+}
+
+/* Enable pointer cursor exclusively on cards that contain ad links */
+.image-card.has-ad-link {
+  cursor: pointer;
+}
+
+.ad-link-wrapper {
+  display: block;
+  text-decoration: none;
+  border: none;
+}
+
+/* Mobile Breakpoint (< 800px) */
+@media (max-width: 799px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 75%;
+    height: 100vh;
+    padding-left: 1rem;
+    box-shadow: 10px 0 25px rgba(0, 0, 0, 0.15);
+    transform: translateX(-100%);
+    z-index: 500;
+    background-color: var(--bg-color);
+  }
+
+  .sidebar.is-open {
+    transform: translateX(0);
+    z-index:1000;
+  }
+
+  .drawer-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    height: 40vh;                          /* Expands tab to 50% of the screen height */
+    transform: translateY(-50%) rotate(180deg);
+    background-color: #000000;            /* Solid black background */
+    color: #ffffff;                       /* White text */
+    border: none;                         /* Removes borders */
+    padding: 0 0.4rem;
+    font-family: inherit;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.4em;
+    cursor: pointer;
+    box-shadow: none;                     /* Removes drop shadow */
+    white-space: nowrap;
+    z-index: 1001;
+    pointer-events: auto !important;
+
+    /* Vertical text flow (I at the bottom) */
+    writing-mode: vertical-rl;
+  }
+
+  .image-stream {
+    width: 100%;
+    z-index: 1;
+  }
+
+  .image-card img {
+    max-width: 90vw;
+  }
+
+  .drawer-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 90;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+  }
+
+  .drawer-backdrop.is-open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .pan-hint-indicator {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 38px;
+    height: 38px;
+  }
+
+  .pan-hint-indicator svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .toc-item{
+    font-size: 0.7rem;
+  }
+  
+  .toc-item.active{
+    font-size: 0.8rem;
+  }
+
+  .center-background-logo img {
+    width: 40vw; /* Adjust size to fit your design */
+  }
 }

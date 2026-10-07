@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://script.google.com https://script.googleusercontent.com; img-src 'self' blob: data: https://lh3.googleusercontent.com https://drive.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self';">
   <title>WWW 20th Anniversary</title>
 
   <!-- Favicon -->
@@ -14,28 +13,88 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
 
+  <!-- Preload Custom WOFF2 Fonts -->
+  <link rel="preload" href="fonts/AkzidGrtskProMedExt.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="fonts/EKRoumaldMono-Roman.woff2" as="font" type="font/woff2" crossorigin />
+
+  <!-- Style Sheet -->
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-
-  <!-- Loading & Error Overlay -->
-  <div id="status-overlay" class="status-overlay">
-    <div id="loading-spinner" class="spinner"></div>
-    <div id="error-box" class="error-box hidden">
-      <p id="error-message">Unable to load images from Google Drive.</p>
-      <button id="retry-btn" class="btn-retry">Try Again</button>
+<body style="margin:0!important">
+  <!-- Loading Overlay -->
+  <!-- AFTER (Option B: External Asset File) -->
+  <div id="loading-overlay" class="loading-overlay">
+    <div class="loading-logo-wrapper">
+      <object type="image/svg+xml" data="assets/loading-animation.svg" class="loading-logo-svg"></object>
     </div>
   </div>
 
+  <!-- Fixed Brand Text in Top Left -->
+  <div class="top-right-brand">WHO WHAT WEAR</div>
+  
+  <!-- Fixed Brand Text in Top Left -->
+  <div class="anniversary-corner-callout">TWENTIETH ANNIVERSARY</div>
+  
+  <!-- Bottom Left Callout -->
+  <div class="bottom-left-callout">BUY THE PRINT MAGAZINE</div>
+  
+  <!-- Centered background logo -->
+  <div class="center-background-logo">
+    <!-- <img src="assets/www-20th-black.svg" alt="Background Logo" /> -->
+  </div>
+  
+  <!-- Content Area -->
   <div class="app-container">
     <!-- Left Sidebar -->
     <aside class="sidebar" aria-label="Table of Contents">
+      <!-- Static Mobile Toggle Button -->
+      <button class="drawer-toggle" id="drawer-toggle">EXPLORE</button>
       <div class="sidebar-header">
-        <img src="assets/www-logo.png" alt="Logo" class="sidebar-logo">
-        <h2>Table of Contents</h2>
+        <!-- <img src="assets/www-logo.png" alt="Logo" class="sidebar-logo"> -->
+        <h2>IN THIS ISSUE</h2>
       </div>
       
-      <nav id="toc" class="toc-list" role="navigation"></nav>
+      <!-- Wrap #toc in a scroll container -->
+      <div class="toc-wrapper" id="toc-wrapper">
+        <nav id="toc" class="toc-list" role="navigation">
+          <!-- TOC_START -->
+        <a href="#" class="toc-item" id="toc-link-10" data-original-index="10">EDITOR'S LETTER</a>
+        <a href="#" class="toc-item" id="toc-link-13" data-original-index="13">HIGHLIGHT REEL</a>
+        <a href="#" class="toc-item" id="toc-link-15" data-original-index="15">MY WORLD</a>
+        <a href="#" class="toc-item" id="toc-link-17" data-original-index="17">BAG CHECK</a>
+        <a href="#" class="toc-item" id="toc-link-18" data-original-index="18">TWENTY YEARS</a>
+        <a href="#" class="toc-item" id="toc-link-21" data-original-index="21">YOU'VE GOT MAIL</a>
+        <a href="#" class="toc-item" id="toc-link-23" data-original-index="23">CHARACTER ARC</a>
+        <a href="#" class="toc-item" id="toc-link-24" data-original-index="24">LOCALS ONLY</a>
+        <a href="#" class="toc-item" id="toc-link-26" data-original-index="26">WHAT TO WEAR</a>
+        <a href="#" class="toc-item" id="toc-link-28" data-original-index="28">THE BUSINESS OF TASTE</a>
+        <a href="#" class="toc-item" id="toc-link-30" data-original-index="30">WHITNEY PEAK</a>
+        <a href="#" class="toc-item" id="toc-link-36" data-original-index="36">IRIS LAW</a>
+        <a href="#" class="toc-item" id="toc-link-42" data-original-index="42">NOW & THEN</a>
+        <a href="#" class="toc-item" id="toc-link-49" data-original-index="49">ICONIC RUNWAY FASHION</a>
+        <a href="#" class="toc-item" id="toc-link-56" data-original-index="56">POLISH LORE</a>
+        <a href="#" class="toc-item" id="toc-link-58" data-original-index="58">THE POWER OF PAT</a>
+        <a href="#" class="toc-item" id="toc-link-61" data-original-index="61">THE BEAUTY MATRIX</a>
+        <a href="#" class="toc-item" id="toc-link-63" data-original-index="63">UP NEXT</a>
+        <a href="#" class="toc-item" id="toc-link-65" data-original-index="65">PERFECTING PRADA</a>
+        <a href="#" class="toc-item" id="toc-link-66" data-original-index="66">WHO MADE YOUR JEANS</a>
+        <a href="#" class="toc-item" id="toc-link-68" data-original-index="68">THE FORECAST</a>
+        <a href="#" class="toc-item" id="toc-link-70" data-original-index="70">HOT V. NOT</a>
+        <a href="#" class="toc-item" id="toc-link-71" data-original-index="71">Q&A WHITNEY PEAK <br> Q&A IRIS LAW</a>
+        <a href="#" class="toc-item" id="toc-link-72" data-original-index="72">POP QUIZ</a>
+        <a href="#" class="toc-item" id="toc-link-73" data-original-index="73">FASHION HIGH</a>
+        <a href="#" class="toc-item" id="toc-link-74" data-original-index="74">HOROSCOPES <br> FASHION FORTUNE TELLER</a>
+        <a href="#" class="toc-item" id="toc-link-75" data-original-index="75">GUESS THE YEAR</a>
+        <a href="#" class="toc-item" id="toc-link-76" data-original-index="76">LETTERS TO 2046</a>
+        <a href="#" class="toc-item" id="toc-link-77" data-original-index="77">THE LONG GAME</a>
+        <!-- TOC_END -->
+        </nav>
+      </div>
+
+      <!-- Scroll Indicator Down Arrow -->
+      <div class="toc-scroll-indicator" id="toc-scroll-indicator" aria-hidden="true">
+        ↓
+      </div>
 
       <div class="sidebar-footer">
         <div class="shortcut-hint">Use <kbd>↑</kbd> <kbd>↓</kbd> arrows to navigate</div>
@@ -43,11 +102,265 @@
     </aside>
 
     <!-- Right Image Stream -->
-    <main id="image-stream" class="image-stream"></main>
+    <main id="image-stream" class="image-stream">
+      <!-- STREAM_START -->
+      <article class="image-card" id="img-section-0" data-flat-index="0" data-original-index="0"><div class="card-media-wrapper"><img src="images50/_0.webp" alt="Image 1" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-1" data-flat-index="1" data-original-index="1" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/2.jpg" alt="Image 2" class="loaded"><a href="https://www.cartier.com/en-us/high-jewelry/all-creations/faune-et-flore-de-cartier/" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-2" data-flat-index="2" data-original-index="2" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/3.jpg" alt="Image 3" class="loaded"><a href="https://www.fendi.com/us-en/woman/new-in?utm_source=WWW&utm_medium=display&utm_campaign=US_FallWinter26-Branding" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-3" data-flat-index="3" data-original-index="3" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/4.jpg" alt="Image 4" class="loaded"><a href="https://www.miumiu.com/us/en/collections/fw26-collection/c/11085US" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-4" data-flat-index="4" data-original-index="4" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/5.jpg" alt="Image 5" class="loaded"><a href="https://www.bulgari.com/en-us/jewelry/serpenti" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-5" data-flat-index="5" data-original-index="5" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/6.jpg" alt="Image 6" class="loaded"><a href="https://www.omegawatches.com/en-us/watches/speedmaster/speedmaster-38-mm/catalog" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-6" data-flat-index="6" data-original-index="6" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/7.jpg" alt="Image 7" class="loaded"><a href="https://us.burberry.com/l/womens-clothing/winter-runway-collection/" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-7" data-flat-index="7" data-original-index="7" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/8.jpg" alt="Image 8" class="loaded"><a href="https://www.coach.com/shop/shop-the-campaign" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-8" data-flat-index="8" data-original-index="8" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/9.jpg" alt="Image 9" class="loaded"><a href="https://www.longchamp.com/us/en/longchamp-campaign.html" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-9" data-flat-index="9" data-original-index="9" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/10.jpg" alt="Image 10" class="loaded"><a href="https://www.bloomingdales.com/?&cm_mmc=WWW-_-DIGITALPRINT-_-WWW20-_-SEPT26" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-10" data-flat-index="10" data-original-index="10" data-ad-pos="right"><div class="card-media-wrapper"><img src="images50/11_EDITOR'S-LETTER.jpg" alt="EDITOR'S LETTER" class="loaded"><a href="https://www.vancleefarpels.com/us/en/collections/jewelry/alhambra.html" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-right" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-11" data-flat-index="11" data-original-index="11" data-ad-pos="right"><div class="card-media-wrapper"><img src="images50/12.jpg" alt="Image 12" class="loaded"><a href="https://www.mulberry.com/us/shop/stevie?utm_source=Referral&utm_medium=Affiliate&utm_campaign=USWWW" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-right" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-12" data-flat-index="12" data-original-index="12"><div class="card-media-wrapper"><img src="images50/13.jpg" alt="Image 13" class="loaded"></div></article>
+      <article class="image-card" id="img-section-13" data-flat-index="13" data-original-index="13"><div class="card-media-wrapper"><img src="images50/14_HIGHLIGHT-REEL.jpg" alt="HIGHLIGHT REEL" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-14" data-flat-index="14" data-original-index="14" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/15.jpg" alt="Image 15" class="loaded"><a href="https://www.movado.com/us/en/collections/bangle-style" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-15" data-flat-index="15" data-original-index="15"><div class="card-media-wrapper"><img src="images50/16_MY-WORLD.jpg" alt="MY WORLD" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-16" data-flat-index="16" data-original-index="16" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/17.jpg" alt="Image 17" class="loaded"><a href="https://us.robertocoin.com/" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-17" data-flat-index="17" data-original-index="17"><div class="card-media-wrapper"><img src="images50/18_BAG-CHECK.jpg" alt="BAG CHECK" class="loaded"></div></article>
+      <article class="image-card" id="img-section-18" data-flat-index="18" data-original-index="18"><div class="card-media-wrapper"><img src="images50/19_TWENTY-YEARS.jpg" alt="TWENTY YEARS" class="loaded"></div></article>
+      <article class="image-card" id="img-section-19" data-flat-index="19" data-original-index="19"><div class="card-media-wrapper"><img src="images50/20.jpg" alt="Image 20" class="loaded"></div></article>
+      <article class="image-card" id="img-section-20" data-flat-index="20" data-original-index="20"><div class="card-media-wrapper"><img src="images50/21.jpg" alt="Image 21" class="loaded"></div></article>
+      <article class="image-card" id="img-section-21" data-flat-index="21" data-original-index="21"><div class="card-media-wrapper"><img src="images50/22_YOU'VE-GOT-MAIL.jpg" alt="YOU'VE GOT MAIL" class="loaded"></div></article>
+      <article class="image-card" id="img-section-22" data-flat-index="22" data-original-index="22"><div class="card-media-wrapper"><img src="images50/23.jpg" alt="Image 23" class="loaded"></div></article>
+      <article class="image-card" id="img-section-23" data-flat-index="23" data-original-index="23"><div class="card-media-wrapper"><img src="images50/24_CHARACTER-ARC.jpg" alt="CHARACTER ARC" class="loaded"></div></article>
+      <article class="image-card" id="img-section-24" data-flat-index="24" data-original-index="24"><div class="card-media-wrapper"><img src="images50/25_LOCALS-ONLY.jpg" alt="LOCALS ONLY" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-25" data-flat-index="25" data-original-index="25" data-ad-pos="right"><div class="card-media-wrapper"><img src="images50/26.jpg" alt="Image 26" class="loaded"><a href="https://www.nililotan.com/?utm_content=CTURL&tw_source=Referral&tw_medium=campaign&utm_source=CTURL&utm_medium=Referral&utm_campaign=CTURL" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-right" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-26" data-flat-index="26" data-original-index="26"><div class="card-media-wrapper"><img src="images50/27_WHAT-TO-WEAR.jpg" alt="WHAT TO WEAR" class="loaded"></div></article>
+      <article class="image-card" id="img-section-27" data-flat-index="27" data-original-index="27"><div class="card-media-wrapper"><img src="images50/28.jpg" alt="Image 28" class="loaded"></div></article>
+      <article class="image-card" id="img-section-28" data-flat-index="28" data-original-index="28"><div class="card-media-wrapper"><img src="images50/29_THE-BUSINESS-OF-TASTE.jpg" alt="THE BUSINESS OF TASTE" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-29" data-flat-index="29" data-original-index="29" data-ad-pos="right"><div class="card-media-wrapper"><img src="images50/30.jpg" alt="Image 30" class="loaded"><a href="https://us.maje.com/en/new-discover-fall-winter-collection/" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-right" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-30" data-flat-index="30" data-original-index="30"><div class="card-media-wrapper"><img src="images50/31_WHITNEY-PEAK.jpg" alt="WHITNEY PEAK" class="loaded"></div></article>
+      <article class="image-card" id="img-section-31" data-flat-index="31" data-original-index="31"><div class="card-media-wrapper"><img src="images50/32.jpg" alt="Image 32" class="loaded"></div></article>
+      <article class="image-card" id="img-section-32" data-flat-index="32" data-original-index="32"><div class="card-media-wrapper"><img src="images50/33.jpg" alt="Image 33" class="loaded"></div></article>
+      <article class="image-card" id="img-section-33" data-flat-index="33" data-original-index="33"><div class="card-media-wrapper"><img src="images50/34.jpg" alt="Image 34" class="loaded"></div></article>
+      <article class="image-card" id="img-section-34" data-flat-index="34" data-original-index="34"><div class="card-media-wrapper"><img src="images50/35.jpg" alt="Image 35" class="loaded"></div></article>
+      <article class="image-card" id="img-section-35" data-flat-index="35" data-original-index="35"><div class="card-media-wrapper"><img src="images50/36.jpg" alt="Image 36" class="loaded"></div></article>
+      <article class="image-card" id="img-section-36" data-flat-index="36" data-original-index="36"><div class="card-media-wrapper"><img src="images50/37_IRIS-LAW.jpg" alt="IRIS LAW" class="loaded"></div></article>
+      <article class="image-card" id="img-section-37" data-flat-index="37" data-original-index="37"><div class="card-media-wrapper"><img src="images50/38.jpg" alt="Image 38" class="loaded"></div></article>
+      <article class="image-card" id="img-section-38" data-flat-index="38" data-original-index="38"><div class="card-media-wrapper"><img src="images50/39.jpg" alt="Image 39" class="loaded"></div></article>
+      <article class="image-card" id="img-section-39" data-flat-index="39" data-original-index="39"><div class="card-media-wrapper"><img src="images50/40.jpg" alt="Image 40" class="loaded"></div></article>
+      <article class="image-card" id="img-section-40" data-flat-index="40" data-original-index="40"><div class="card-media-wrapper"><img src="images50/41.jpg" alt="Image 41" class="loaded"></div></article>
+      <article class="image-card" id="img-section-41" data-flat-index="41" data-original-index="41"><div class="card-media-wrapper"><img src="images50/42.jpg" alt="Image 42" class="loaded"></div></article>
+      <article class="image-card" id="img-section-42" data-flat-index="42" data-original-index="42"><div class="card-media-wrapper"><img src="images50/43_NOW-&-THEN.jpg" alt="NOW & THEN" class="loaded"></div></article>
+      <article class="image-card" id="img-section-43" data-flat-index="43" data-original-index="43"><div class="card-media-wrapper"><img src="images50/44.jpg" alt="Image 44" class="loaded"></div></article>
+      <article class="image-card" id="img-section-44" data-flat-index="44" data-original-index="44"><div class="card-media-wrapper"><img src="images50/45.jpg" alt="Image 45" class="loaded"></div></article>
+      <article class="image-card" id="img-section-45" data-flat-index="45" data-original-index="45"><div class="card-media-wrapper"><img src="images50/46.jpg" alt="Image 46" class="loaded"></div></article>
+      <article class="image-card" id="img-section-46" data-flat-index="46" data-original-index="46"><div class="card-media-wrapper"><img src="images50/47.jpg" alt="Image 47" class="loaded"></div></article>
+      <article class="image-card" id="img-section-47" data-flat-index="47" data-original-index="47"><div class="card-media-wrapper"><img src="images50/48.jpg" alt="Image 48" class="loaded"></div></article>
+      <article class="image-card" id="img-section-48" data-flat-index="48" data-original-index="48"><div class="card-media-wrapper"><img src="images50/49.jpg" alt="Image 49" class="loaded"></div></article>
+      <article class="image-card" id="img-section-49" data-flat-index="49" data-original-index="49"><div class="card-media-wrapper"><img src="images50/50_ICONIC-RUNWAY-FASHION.jpg" alt="ICONIC RUNWAY FASHION" class="loaded"></div></article>
+      <article class="image-card" id="img-section-50" data-flat-index="50" data-original-index="50"><div class="card-media-wrapper"><img src="images50/51.jpg" alt="Image 51" class="loaded"></div></article>
+      <article class="image-card" id="img-section-51" data-flat-index="51" data-original-index="51"><div class="card-media-wrapper"><img src="images50/52.jpg" alt="Image 52" class="loaded"></div></article>
+      <article class="image-card" id="img-section-52" data-flat-index="52" data-original-index="52"><div class="card-media-wrapper"><img src="images50/53.jpg" alt="Image 53" class="loaded"></div></article>
+      <article class="image-card" id="img-section-53" data-flat-index="53" data-original-index="53"><div class="card-media-wrapper"><img src="images50/54.jpg" alt="Image 54" class="loaded"></div></article>
+      <article class="image-card" id="img-section-54" data-flat-index="54" data-original-index="54"><div class="card-media-wrapper"><img src="images50/55.jpg" alt="Image 55" class="loaded"></div></article>
+      <article class="image-card" id="img-section-55" data-flat-index="55" data-original-index="55"><div class="card-media-wrapper"><img src="images50/56.jpg" alt="Image 56" class="loaded"></div></article>
+      <article class="image-card" id="img-section-56" data-flat-index="56" data-original-index="56"><div class="card-media-wrapper"><img src="images50/57_POLISH-LORE.jpg" alt="POLISH LORE" class="loaded"></div></article>
+      <article class="image-card" id="img-section-57" data-flat-index="57" data-original-index="57"><div class="card-media-wrapper"><img src="images50/58.jpg" alt="Image 58" class="loaded"></div></article>
+      <article class="image-card" id="img-section-58" data-flat-index="58" data-original-index="58"><div class="card-media-wrapper"><img src="images50/59_THE-POWER-OF-PAT.jpg" alt="THE POWER OF PAT" class="loaded"></div></article>
+      <article class="image-card" id="img-section-59" data-flat-index="59" data-original-index="59"><div class="card-media-wrapper"><img src="images50/60.jpg" alt="Image 60" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-60" data-flat-index="60" data-original-index="60" data-ad-pos="right"><div class="card-media-wrapper"><img src="images50/61.jpg" alt="Image 61" class="loaded"><a href="https://www.macys.com/shop/product/donna-karan-cashmere-mist-eau-de-parfum-fragrance-collection?ID=93140" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-right" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-61" data-flat-index="61" data-original-index="61"><div class="card-media-wrapper"><img src="images50/62_THE-BEAUTY-MATRIX.jpg" alt="THE BEAUTY MATRIX" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-62" data-flat-index="62" data-original-index="62" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/63.jpg" alt="Image 63" class="loaded"><a href="https://www.karllagerfeldparis.com/pages/fall-2026-campaign" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-63" data-flat-index="63" data-original-index="63"><div class="card-media-wrapper"><img src="images50/64_UP-NEXT.jpg" alt="UP NEXT" class="loaded"></div></article>
+      <article class="image-card" id="img-section-64" data-flat-index="64" data-original-index="64"><div class="card-media-wrapper"><img src="images50/65.jpg" alt="Image 65" class="loaded"></div></article>
+      <article class="image-card" id="img-section-65" data-flat-index="65" data-original-index="65"><div class="card-media-wrapper"><img src="images50/66_PERFECTING-PRADA.jpg" alt="PERFECTING PRADA" class="loaded"></div></article>
+      <article class="image-card" id="img-section-66" data-flat-index="66" data-original-index="66"><div class="card-media-wrapper"><img src="images50/67_WHO-MADE-YOUR-JEANS.jpg" alt="WHO MADE YOUR JEANS" class="loaded"></div></article>
+      <article class="image-card" id="img-section-67" data-flat-index="67" data-original-index="67"><div class="card-media-wrapper"><img src="images50/68.jpg" alt="Image 68" class="loaded"></div></article>
+      <article class="image-card" id="img-section-68" data-flat-index="68" data-original-index="68"><div class="card-media-wrapper"><img src="images50/69_THE-FORECAST.jpg" alt="THE FORECAST" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-69" data-flat-index="69" data-original-index="69" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/70.jpg" alt="Image 70" class="loaded"><a href="https://www.ae.com/us/en/c/aerie/cat4840006?pagetype=plp&utm_source=WWW&utm_medium=WWWzine&utm_campaign=WWW20" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-70" data-flat-index="70" data-original-index="70" data-ad-pos="right"><div class="card-media-wrapper"><img src="images50/71_HOT-V.-NOT.jpg" alt="HOT V. NOT" class="loaded"><a href="https://www.kendrascott.com/ever-gold-filled-jewelry" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-right" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-71" data-flat-index="71" data-original-index="71"><div class="card-media-wrapper"><img src="images50/72_Q&A_-WHITNEY-PEAK-[br]-Q&A_IRIS-LAW.jpg" alt="Q&A WHITNEY PEAK   Q&A IRIS LAW" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-72" data-flat-index="72" data-original-index="72" data-ad-pos="right"><div class="card-media-wrapper"><img src="images50/73_POP-QUIZ.jpg" alt="POP QUIZ" class="loaded"><a href="https://www.isdin.com/us/p/ageless-34-fl-oz/3431" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-right" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-73" data-flat-index="73" data-original-index="73"><div class="card-media-wrapper"><img src="images50/74_FASHION-HIGH.jpg" alt="FASHION HIGH" class="loaded"></div></article>
+      <article class="image-card" id="img-section-74" data-flat-index="74" data-original-index="74"><div class="card-media-wrapper"><img src="images50/75_HOROSCOPES-[br]-FASHION-FORTUNE-TELLER.jpg" alt="HOROSCOPES   FASHION FORTUNE TELLER" class="loaded"></div></article>
+      <article class="image-card" id="img-section-75" data-flat-index="75" data-original-index="75"><div class="card-media-wrapper"><img src="images50/76_GUESS-THE-YEAR.jpg" alt="GUESS THE YEAR" class="loaded"></div></article>
+      <article class="image-card" id="img-section-76" data-flat-index="76" data-original-index="76"><div class="card-media-wrapper"><img src="images50/77_LETTERS-TO-2046.jpg" alt="LETTERS TO 2046" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-77" data-flat-index="77" data-original-index="77" data-ad-pos="right"><div class="card-media-wrapper"><img src="images50/78_THE-LONG-GAME.jpg" alt="THE LONG GAME" class="loaded"><a href="https://www.tiffany.com/designers-collections/tiffany-hardwear/" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-right" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-78" data-flat-index="78" data-original-index="78" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/79.jpg" alt="Image 79" class="loaded"><a href="https://www.tiffany.com/designers-collections/tiffany-hardwear/" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-79" data-flat-index="79" data-original-index="0"><div class="card-media-wrapper"><img src="images50/_0.webp" alt="Image 1" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-80" data-flat-index="80" data-original-index="1" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/2.jpg" alt="Image 2" class="loaded"><a href="https://www.cartier.com/en-us/high-jewelry/all-creations/faune-et-flore-de-cartier/" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-81" data-flat-index="81" data-original-index="2" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/3.jpg" alt="Image 3" class="loaded"><a href="https://www.fendi.com/us-en/woman/new-in?utm_source=WWW&utm_medium=display&utm_campaign=US_FallWinter26-Branding" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-82" data-flat-index="82" data-original-index="3" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/4.jpg" alt="Image 4" class="loaded"><a href="https://www.miumiu.com/us/en/collections/fw26-collection/c/11085US" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-83" data-flat-index="83" data-original-index="4" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/5.jpg" alt="Image 5" class="loaded"><a href="https://www.bulgari.com/en-us/jewelry/serpenti" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-84" data-flat-index="84" data-original-index="5" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/6.jpg" alt="Image 6" class="loaded"><a href="https://www.omegawatches.com/en-us/watches/speedmaster/speedmaster-38-mm/catalog" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-85" data-flat-index="85" data-original-index="6" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/7.jpg" alt="Image 7" class="loaded"><a href="https://us.burberry.com/l/womens-clothing/winter-runway-collection/" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-86" data-flat-index="86" data-original-index="7" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/8.jpg" alt="Image 8" class="loaded"><a href="https://www.coach.com/shop/shop-the-campaign" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-87" data-flat-index="87" data-original-index="8" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/9.jpg" alt="Image 9" class="loaded"><a href="https://www.longchamp.com/us/en/longchamp-campaign.html" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-88" data-flat-index="88" data-original-index="9" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/10.jpg" alt="Image 10" class="loaded"><a href="https://www.bloomingdales.com/?&cm_mmc=WWW-_-DIGITALPRINT-_-WWW20-_-SEPT26" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-89" data-flat-index="89" data-original-index="10" data-ad-pos="right"><div class="card-media-wrapper"><img src="images50/11_EDITOR'S-LETTER.jpg" alt="EDITOR'S LETTER" class="loaded"><a href="https://www.vancleefarpels.com/us/en/collections/jewelry/alhambra.html" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-right" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-90" data-flat-index="90" data-original-index="11" data-ad-pos="right"><div class="card-media-wrapper"><img src="images50/12.jpg" alt="Image 12" class="loaded"><a href="https://www.mulberry.com/us/shop/stevie?utm_source=Referral&utm_medium=Affiliate&utm_campaign=USWWW" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-right" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-91" data-flat-index="91" data-original-index="12"><div class="card-media-wrapper"><img src="images50/13.jpg" alt="Image 13" class="loaded"></div></article>
+      <article class="image-card" id="img-section-92" data-flat-index="92" data-original-index="13"><div class="card-media-wrapper"><img src="images50/14_HIGHLIGHT-REEL.jpg" alt="HIGHLIGHT REEL" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-93" data-flat-index="93" data-original-index="14" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/15.jpg" alt="Image 15" class="loaded"><a href="https://www.movado.com/us/en/collections/bangle-style" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-94" data-flat-index="94" data-original-index="15"><div class="card-media-wrapper"><img src="images50/16_MY-WORLD.jpg" alt="MY WORLD" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-95" data-flat-index="95" data-original-index="16" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/17.jpg" alt="Image 17" class="loaded"><a href="https://us.robertocoin.com/" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-96" data-flat-index="96" data-original-index="17"><div class="card-media-wrapper"><img src="images50/18_BAG-CHECK.jpg" alt="BAG CHECK" class="loaded"></div></article>
+      <article class="image-card" id="img-section-97" data-flat-index="97" data-original-index="18"><div class="card-media-wrapper"><img src="images50/19_TWENTY-YEARS.jpg" alt="TWENTY YEARS" class="loaded"></div></article>
+      <article class="image-card" id="img-section-98" data-flat-index="98" data-original-index="19"><div class="card-media-wrapper"><img src="images50/20.jpg" alt="Image 20" class="loaded"></div></article>
+      <article class="image-card" id="img-section-99" data-flat-index="99" data-original-index="20"><div class="card-media-wrapper"><img src="images50/21.jpg" alt="Image 21" class="loaded"></div></article>
+      <article class="image-card" id="img-section-100" data-flat-index="100" data-original-index="21"><div class="card-media-wrapper"><img src="images50/22_YOU'VE-GOT-MAIL.jpg" alt="YOU'VE GOT MAIL" class="loaded"></div></article>
+      <article class="image-card" id="img-section-101" data-flat-index="101" data-original-index="22"><div class="card-media-wrapper"><img src="images50/23.jpg" alt="Image 23" class="loaded"></div></article>
+      <article class="image-card" id="img-section-102" data-flat-index="102" data-original-index="23"><div class="card-media-wrapper"><img src="images50/24_CHARACTER-ARC.jpg" alt="CHARACTER ARC" class="loaded"></div></article>
+      <article class="image-card" id="img-section-103" data-flat-index="103" data-original-index="24"><div class="card-media-wrapper"><img src="images50/25_LOCALS-ONLY.jpg" alt="LOCALS ONLY" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-104" data-flat-index="104" data-original-index="25" data-ad-pos="right"><div class="card-media-wrapper"><img src="images50/26.jpg" alt="Image 26" class="loaded"><a href="https://www.nililotan.com/?utm_content=CTURL&tw_source=Referral&tw_medium=campaign&utm_source=CTURL&utm_medium=Referral&utm_campaign=CTURL" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-right" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-105" data-flat-index="105" data-original-index="26"><div class="card-media-wrapper"><img src="images50/27_WHAT-TO-WEAR.jpg" alt="WHAT TO WEAR" class="loaded"></div></article>
+      <article class="image-card" id="img-section-106" data-flat-index="106" data-original-index="27"><div class="card-media-wrapper"><img src="images50/28.jpg" alt="Image 28" class="loaded"></div></article>
+      <article class="image-card" id="img-section-107" data-flat-index="107" data-original-index="28"><div class="card-media-wrapper"><img src="images50/29_THE-BUSINESS-OF-TASTE.jpg" alt="THE BUSINESS OF TASTE" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-108" data-flat-index="108" data-original-index="29" data-ad-pos="right"><div class="card-media-wrapper"><img src="images50/30.jpg" alt="Image 30" class="loaded"><a href="https://us.maje.com/en/new-discover-fall-winter-collection/" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-right" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-109" data-flat-index="109" data-original-index="30"><div class="card-media-wrapper"><img src="images50/31_WHITNEY-PEAK.jpg" alt="WHITNEY PEAK" class="loaded"></div></article>
+      <article class="image-card" id="img-section-110" data-flat-index="110" data-original-index="31"><div class="card-media-wrapper"><img src="images50/32.jpg" alt="Image 32" class="loaded"></div></article>
+      <article class="image-card" id="img-section-111" data-flat-index="111" data-original-index="32"><div class="card-media-wrapper"><img src="images50/33.jpg" alt="Image 33" class="loaded"></div></article>
+      <article class="image-card" id="img-section-112" data-flat-index="112" data-original-index="33"><div class="card-media-wrapper"><img src="images50/34.jpg" alt="Image 34" class="loaded"></div></article>
+      <article class="image-card" id="img-section-113" data-flat-index="113" data-original-index="34"><div class="card-media-wrapper"><img src="images50/35.jpg" alt="Image 35" class="loaded"></div></article>
+      <article class="image-card" id="img-section-114" data-flat-index="114" data-original-index="35"><div class="card-media-wrapper"><img src="images50/36.jpg" alt="Image 36" class="loaded"></div></article>
+      <article class="image-card" id="img-section-115" data-flat-index="115" data-original-index="36"><div class="card-media-wrapper"><img src="images50/37_IRIS-LAW.jpg" alt="IRIS LAW" class="loaded"></div></article>
+      <article class="image-card" id="img-section-116" data-flat-index="116" data-original-index="37"><div class="card-media-wrapper"><img src="images50/38.jpg" alt="Image 38" class="loaded"></div></article>
+      <article class="image-card" id="img-section-117" data-flat-index="117" data-original-index="38"><div class="card-media-wrapper"><img src="images50/39.jpg" alt="Image 39" class="loaded"></div></article>
+      <article class="image-card" id="img-section-118" data-flat-index="118" data-original-index="39"><div class="card-media-wrapper"><img src="images50/40.jpg" alt="Image 40" class="loaded"></div></article>
+      <article class="image-card" id="img-section-119" data-flat-index="119" data-original-index="40"><div class="card-media-wrapper"><img src="images50/41.jpg" alt="Image 41" class="loaded"></div></article>
+      <article class="image-card" id="img-section-120" data-flat-index="120" data-original-index="41"><div class="card-media-wrapper"><img src="images50/42.jpg" alt="Image 42" class="loaded"></div></article>
+      <article class="image-card" id="img-section-121" data-flat-index="121" data-original-index="42"><div class="card-media-wrapper"><img src="images50/43_NOW-&-THEN.jpg" alt="NOW & THEN" class="loaded"></div></article>
+      <article class="image-card" id="img-section-122" data-flat-index="122" data-original-index="43"><div class="card-media-wrapper"><img src="images50/44.jpg" alt="Image 44" class="loaded"></div></article>
+      <article class="image-card" id="img-section-123" data-flat-index="123" data-original-index="44"><div class="card-media-wrapper"><img src="images50/45.jpg" alt="Image 45" class="loaded"></div></article>
+      <article class="image-card" id="img-section-124" data-flat-index="124" data-original-index="45"><div class="card-media-wrapper"><img src="images50/46.jpg" alt="Image 46" class="loaded"></div></article>
+      <article class="image-card" id="img-section-125" data-flat-index="125" data-original-index="46"><div class="card-media-wrapper"><img src="images50/47.jpg" alt="Image 47" class="loaded"></div></article>
+      <article class="image-card" id="img-section-126" data-flat-index="126" data-original-index="47"><div class="card-media-wrapper"><img src="images50/48.jpg" alt="Image 48" class="loaded"></div></article>
+      <article class="image-card" id="img-section-127" data-flat-index="127" data-original-index="48"><div class="card-media-wrapper"><img src="images50/49.jpg" alt="Image 49" class="loaded"></div></article>
+      <article class="image-card" id="img-section-128" data-flat-index="128" data-original-index="49"><div class="card-media-wrapper"><img src="images50/50_ICONIC-RUNWAY-FASHION.jpg" alt="ICONIC RUNWAY FASHION" class="loaded"></div></article>
+      <article class="image-card" id="img-section-129" data-flat-index="129" data-original-index="50"><div class="card-media-wrapper"><img src="images50/51.jpg" alt="Image 51" class="loaded"></div></article>
+      <article class="image-card" id="img-section-130" data-flat-index="130" data-original-index="51"><div class="card-media-wrapper"><img src="images50/52.jpg" alt="Image 52" class="loaded"></div></article>
+      <article class="image-card" id="img-section-131" data-flat-index="131" data-original-index="52"><div class="card-media-wrapper"><img src="images50/53.jpg" alt="Image 53" class="loaded"></div></article>
+      <article class="image-card" id="img-section-132" data-flat-index="132" data-original-index="53"><div class="card-media-wrapper"><img src="images50/54.jpg" alt="Image 54" class="loaded"></div></article>
+      <article class="image-card" id="img-section-133" data-flat-index="133" data-original-index="54"><div class="card-media-wrapper"><img src="images50/55.jpg" alt="Image 55" class="loaded"></div></article>
+      <article class="image-card" id="img-section-134" data-flat-index="134" data-original-index="55"><div class="card-media-wrapper"><img src="images50/56.jpg" alt="Image 56" class="loaded"></div></article>
+      <article class="image-card" id="img-section-135" data-flat-index="135" data-original-index="56"><div class="card-media-wrapper"><img src="images50/57_POLISH-LORE.jpg" alt="POLISH LORE" class="loaded"></div></article>
+      <article class="image-card" id="img-section-136" data-flat-index="136" data-original-index="57"><div class="card-media-wrapper"><img src="images50/58.jpg" alt="Image 58" class="loaded"></div></article>
+      <article class="image-card" id="img-section-137" data-flat-index="137" data-original-index="58"><div class="card-media-wrapper"><img src="images50/59_THE-POWER-OF-PAT.jpg" alt="THE POWER OF PAT" class="loaded"></div></article>
+      <article class="image-card" id="img-section-138" data-flat-index="138" data-original-index="59"><div class="card-media-wrapper"><img src="images50/60.jpg" alt="Image 60" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-139" data-flat-index="139" data-original-index="60" data-ad-pos="right"><div class="card-media-wrapper"><img src="images50/61.jpg" alt="Image 61" class="loaded"><a href="https://www.macys.com/shop/product/donna-karan-cashmere-mist-eau-de-parfum-fragrance-collection?ID=93140" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-right" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-140" data-flat-index="140" data-original-index="61"><div class="card-media-wrapper"><img src="images50/62_THE-BEAUTY-MATRIX.jpg" alt="THE BEAUTY MATRIX" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-141" data-flat-index="141" data-original-index="62" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/63.jpg" alt="Image 63" class="loaded"><a href="https://www.karllagerfeldparis.com/pages/fall-2026-campaign" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-142" data-flat-index="142" data-original-index="63"><div class="card-media-wrapper"><img src="images50/64_UP-NEXT.jpg" alt="UP NEXT" class="loaded"></div></article>
+      <article class="image-card" id="img-section-143" data-flat-index="143" data-original-index="64"><div class="card-media-wrapper"><img src="images50/65.jpg" alt="Image 65" class="loaded"></div></article>
+      <article class="image-card" id="img-section-144" data-flat-index="144" data-original-index="65"><div class="card-media-wrapper"><img src="images50/66_PERFECTING-PRADA.jpg" alt="PERFECTING PRADA" class="loaded"></div></article>
+      <article class="image-card" id="img-section-145" data-flat-index="145" data-original-index="66"><div class="card-media-wrapper"><img src="images50/67_WHO-MADE-YOUR-JEANS.jpg" alt="WHO MADE YOUR JEANS" class="loaded"></div></article>
+      <article class="image-card" id="img-section-146" data-flat-index="146" data-original-index="67"><div class="card-media-wrapper"><img src="images50/68.jpg" alt="Image 68" class="loaded"></div></article>
+      <article class="image-card" id="img-section-147" data-flat-index="147" data-original-index="68"><div class="card-media-wrapper"><img src="images50/69_THE-FORECAST.jpg" alt="THE FORECAST" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-148" data-flat-index="148" data-original-index="69" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/70.jpg" alt="Image 70" class="loaded"><a href="https://www.ae.com/us/en/c/aerie/cat4840006?pagetype=plp&utm_source=WWW&utm_medium=WWWzine&utm_campaign=WWW20" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-149" data-flat-index="149" data-original-index="70" data-ad-pos="right"><div class="card-media-wrapper"><img src="images50/71_HOT-V.-NOT.jpg" alt="HOT V. NOT" class="loaded"><a href="https://www.kendrascott.com/ever-gold-filled-jewelry" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-right" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-150" data-flat-index="150" data-original-index="71"><div class="card-media-wrapper"><img src="images50/72_Q&A_-WHITNEY-PEAK-[br]-Q&A_IRIS-LAW.jpg" alt="Q&A WHITNEY PEAK   Q&A IRIS LAW" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-151" data-flat-index="151" data-original-index="72" data-ad-pos="right"><div class="card-media-wrapper"><img src="images50/73_POP-QUIZ.jpg" alt="POP QUIZ" class="loaded"><a href="https://www.isdin.com/us/p/ageless-34-fl-oz/3431" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-right" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-152" data-flat-index="152" data-original-index="73"><div class="card-media-wrapper"><img src="images50/74_FASHION-HIGH.jpg" alt="FASHION HIGH" class="loaded"></div></article>
+      <article class="image-card" id="img-section-153" data-flat-index="153" data-original-index="74"><div class="card-media-wrapper"><img src="images50/75_HOROSCOPES-[br]-FASHION-FORTUNE-TELLER.jpg" alt="HOROSCOPES   FASHION FORTUNE TELLER" class="loaded"></div></article>
+      <article class="image-card" id="img-section-154" data-flat-index="154" data-original-index="75"><div class="card-media-wrapper"><img src="images50/76_GUESS-THE-YEAR.jpg" alt="GUESS THE YEAR" class="loaded"></div></article>
+      <article class="image-card" id="img-section-155" data-flat-index="155" data-original-index="76"><div class="card-media-wrapper"><img src="images50/77_LETTERS-TO-2046.jpg" alt="LETTERS TO 2046" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-156" data-flat-index="156" data-original-index="77" data-ad-pos="right"><div class="card-media-wrapper"><img src="images50/78_THE-LONG-GAME.jpg" alt="THE LONG GAME" class="loaded"><a href="https://www.tiffany.com/designers-collections/tiffany-hardwear/" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-right" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-157" data-flat-index="157" data-original-index="78" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/79.jpg" alt="Image 79" class="loaded"><a href="https://www.tiffany.com/designers-collections/tiffany-hardwear/" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-158" data-flat-index="158" data-original-index="0"><div class="card-media-wrapper"><img src="images50/_0.webp" alt="Image 1" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-159" data-flat-index="159" data-original-index="1" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/2.jpg" alt="Image 2" class="loaded"><a href="https://www.cartier.com/en-us/high-jewelry/all-creations/faune-et-flore-de-cartier/" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-160" data-flat-index="160" data-original-index="2" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/3.jpg" alt="Image 3" class="loaded"><a href="https://www.fendi.com/us-en/woman/new-in?utm_source=WWW&utm_medium=display&utm_campaign=US_FallWinter26-Branding" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-161" data-flat-index="161" data-original-index="3" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/4.jpg" alt="Image 4" class="loaded"><a href="https://www.miumiu.com/us/en/collections/fw26-collection/c/11085US" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-162" data-flat-index="162" data-original-index="4" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/5.jpg" alt="Image 5" class="loaded"><a href="https://www.bulgari.com/en-us/jewelry/serpenti" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-163" data-flat-index="163" data-original-index="5" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/6.jpg" alt="Image 6" class="loaded"><a href="https://www.omegawatches.com/en-us/watches/speedmaster/speedmaster-38-mm/catalog" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-164" data-flat-index="164" data-original-index="6" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/7.jpg" alt="Image 7" class="loaded"><a href="https://us.burberry.com/l/womens-clothing/winter-runway-collection/" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-165" data-flat-index="165" data-original-index="7" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/8.jpg" alt="Image 8" class="loaded"><a href="https://www.coach.com/shop/shop-the-campaign" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-166" data-flat-index="166" data-original-index="8" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/9.jpg" alt="Image 9" class="loaded"><a href="https://www.longchamp.com/us/en/longchamp-campaign.html" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-167" data-flat-index="167" data-original-index="9" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/10.jpg" alt="Image 10" class="loaded"><a href="https://www.bloomingdales.com/?&cm_mmc=WWW-_-DIGITALPRINT-_-WWW20-_-SEPT26" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-168" data-flat-index="168" data-original-index="10" data-ad-pos="right"><div class="card-media-wrapper"><img src="images50/11_EDITOR'S-LETTER.jpg" alt="EDITOR'S LETTER" class="loaded"><a href="https://www.vancleefarpels.com/us/en/collections/jewelry/alhambra.html" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-right" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-169" data-flat-index="169" data-original-index="11" data-ad-pos="right"><div class="card-media-wrapper"><img src="images50/12.jpg" alt="Image 12" class="loaded"><a href="https://www.mulberry.com/us/shop/stevie?utm_source=Referral&utm_medium=Affiliate&utm_campaign=USWWW" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-right" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-170" data-flat-index="170" data-original-index="12"><div class="card-media-wrapper"><img src="images50/13.jpg" alt="Image 13" class="loaded"></div></article>
+      <article class="image-card" id="img-section-171" data-flat-index="171" data-original-index="13"><div class="card-media-wrapper"><img src="images50/14_HIGHLIGHT-REEL.jpg" alt="HIGHLIGHT REEL" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-172" data-flat-index="172" data-original-index="14" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/15.jpg" alt="Image 15" class="loaded"><a href="https://www.movado.com/us/en/collections/bangle-style" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-173" data-flat-index="173" data-original-index="15"><div class="card-media-wrapper"><img src="images50/16_MY-WORLD.jpg" alt="MY WORLD" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-174" data-flat-index="174" data-original-index="16" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/17.jpg" alt="Image 17" class="loaded"><a href="https://us.robertocoin.com/" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-175" data-flat-index="175" data-original-index="17"><div class="card-media-wrapper"><img src="images50/18_BAG-CHECK.jpg" alt="BAG CHECK" class="loaded"></div></article>
+      <article class="image-card" id="img-section-176" data-flat-index="176" data-original-index="18"><div class="card-media-wrapper"><img src="images50/19_TWENTY-YEARS.jpg" alt="TWENTY YEARS" class="loaded"></div></article>
+      <article class="image-card" id="img-section-177" data-flat-index="177" data-original-index="19"><div class="card-media-wrapper"><img src="images50/20.jpg" alt="Image 20" class="loaded"></div></article>
+      <article class="image-card" id="img-section-178" data-flat-index="178" data-original-index="20"><div class="card-media-wrapper"><img src="images50/21.jpg" alt="Image 21" class="loaded"></div></article>
+      <article class="image-card" id="img-section-179" data-flat-index="179" data-original-index="21"><div class="card-media-wrapper"><img src="images50/22_YOU'VE-GOT-MAIL.jpg" alt="YOU'VE GOT MAIL" class="loaded"></div></article>
+      <article class="image-card" id="img-section-180" data-flat-index="180" data-original-index="22"><div class="card-media-wrapper"><img src="images50/23.jpg" alt="Image 23" class="loaded"></div></article>
+      <article class="image-card" id="img-section-181" data-flat-index="181" data-original-index="23"><div class="card-media-wrapper"><img src="images50/24_CHARACTER-ARC.jpg" alt="CHARACTER ARC" class="loaded"></div></article>
+      <article class="image-card" id="img-section-182" data-flat-index="182" data-original-index="24"><div class="card-media-wrapper"><img src="images50/25_LOCALS-ONLY.jpg" alt="LOCALS ONLY" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-183" data-flat-index="183" data-original-index="25" data-ad-pos="right"><div class="card-media-wrapper"><img src="images50/26.jpg" alt="Image 26" class="loaded"><a href="https://www.nililotan.com/?utm_content=CTURL&tw_source=Referral&tw_medium=campaign&utm_source=CTURL&utm_medium=Referral&utm_campaign=CTURL" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-right" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-184" data-flat-index="184" data-original-index="26"><div class="card-media-wrapper"><img src="images50/27_WHAT-TO-WEAR.jpg" alt="WHAT TO WEAR" class="loaded"></div></article>
+      <article class="image-card" id="img-section-185" data-flat-index="185" data-original-index="27"><div class="card-media-wrapper"><img src="images50/28.jpg" alt="Image 28" class="loaded"></div></article>
+      <article class="image-card" id="img-section-186" data-flat-index="186" data-original-index="28"><div class="card-media-wrapper"><img src="images50/29_THE-BUSINESS-OF-TASTE.jpg" alt="THE BUSINESS OF TASTE" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-187" data-flat-index="187" data-original-index="29" data-ad-pos="right"><div class="card-media-wrapper"><img src="images50/30.jpg" alt="Image 30" class="loaded"><a href="https://us.maje.com/en/new-discover-fall-winter-collection/" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-right" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-188" data-flat-index="188" data-original-index="30"><div class="card-media-wrapper"><img src="images50/31_WHITNEY-PEAK.jpg" alt="WHITNEY PEAK" class="loaded"></div></article>
+      <article class="image-card" id="img-section-189" data-flat-index="189" data-original-index="31"><div class="card-media-wrapper"><img src="images50/32.jpg" alt="Image 32" class="loaded"></div></article>
+      <article class="image-card" id="img-section-190" data-flat-index="190" data-original-index="32"><div class="card-media-wrapper"><img src="images50/33.jpg" alt="Image 33" class="loaded"></div></article>
+      <article class="image-card" id="img-section-191" data-flat-index="191" data-original-index="33"><div class="card-media-wrapper"><img src="images50/34.jpg" alt="Image 34" class="loaded"></div></article>
+      <article class="image-card" id="img-section-192" data-flat-index="192" data-original-index="34"><div class="card-media-wrapper"><img src="images50/35.jpg" alt="Image 35" class="loaded"></div></article>
+      <article class="image-card" id="img-section-193" data-flat-index="193" data-original-index="35"><div class="card-media-wrapper"><img src="images50/36.jpg" alt="Image 36" class="loaded"></div></article>
+      <article class="image-card" id="img-section-194" data-flat-index="194" data-original-index="36"><div class="card-media-wrapper"><img src="images50/37_IRIS-LAW.jpg" alt="IRIS LAW" class="loaded"></div></article>
+      <article class="image-card" id="img-section-195" data-flat-index="195" data-original-index="37"><div class="card-media-wrapper"><img src="images50/38.jpg" alt="Image 38" class="loaded"></div></article>
+      <article class="image-card" id="img-section-196" data-flat-index="196" data-original-index="38"><div class="card-media-wrapper"><img src="images50/39.jpg" alt="Image 39" class="loaded"></div></article>
+      <article class="image-card" id="img-section-197" data-flat-index="197" data-original-index="39"><div class="card-media-wrapper"><img src="images50/40.jpg" alt="Image 40" class="loaded"></div></article>
+      <article class="image-card" id="img-section-198" data-flat-index="198" data-original-index="40"><div class="card-media-wrapper"><img src="images50/41.jpg" alt="Image 41" class="loaded"></div></article>
+      <article class="image-card" id="img-section-199" data-flat-index="199" data-original-index="41"><div class="card-media-wrapper"><img src="images50/42.jpg" alt="Image 42" class="loaded"></div></article>
+      <article class="image-card" id="img-section-200" data-flat-index="200" data-original-index="42"><div class="card-media-wrapper"><img src="images50/43_NOW-&-THEN.jpg" alt="NOW & THEN" class="loaded"></div></article>
+      <article class="image-card" id="img-section-201" data-flat-index="201" data-original-index="43"><div class="card-media-wrapper"><img src="images50/44.jpg" alt="Image 44" class="loaded"></div></article>
+      <article class="image-card" id="img-section-202" data-flat-index="202" data-original-index="44"><div class="card-media-wrapper"><img src="images50/45.jpg" alt="Image 45" class="loaded"></div></article>
+      <article class="image-card" id="img-section-203" data-flat-index="203" data-original-index="45"><div class="card-media-wrapper"><img src="images50/46.jpg" alt="Image 46" class="loaded"></div></article>
+      <article class="image-card" id="img-section-204" data-flat-index="204" data-original-index="46"><div class="card-media-wrapper"><img src="images50/47.jpg" alt="Image 47" class="loaded"></div></article>
+      <article class="image-card" id="img-section-205" data-flat-index="205" data-original-index="47"><div class="card-media-wrapper"><img src="images50/48.jpg" alt="Image 48" class="loaded"></div></article>
+      <article class="image-card" id="img-section-206" data-flat-index="206" data-original-index="48"><div class="card-media-wrapper"><img src="images50/49.jpg" alt="Image 49" class="loaded"></div></article>
+      <article class="image-card" id="img-section-207" data-flat-index="207" data-original-index="49"><div class="card-media-wrapper"><img src="images50/50_ICONIC-RUNWAY-FASHION.jpg" alt="ICONIC RUNWAY FASHION" class="loaded"></div></article>
+      <article class="image-card" id="img-section-208" data-flat-index="208" data-original-index="50"><div class="card-media-wrapper"><img src="images50/51.jpg" alt="Image 51" class="loaded"></div></article>
+      <article class="image-card" id="img-section-209" data-flat-index="209" data-original-index="51"><div class="card-media-wrapper"><img src="images50/52.jpg" alt="Image 52" class="loaded"></div></article>
+      <article class="image-card" id="img-section-210" data-flat-index="210" data-original-index="52"><div class="card-media-wrapper"><img src="images50/53.jpg" alt="Image 53" class="loaded"></div></article>
+      <article class="image-card" id="img-section-211" data-flat-index="211" data-original-index="53"><div class="card-media-wrapper"><img src="images50/54.jpg" alt="Image 54" class="loaded"></div></article>
+      <article class="image-card" id="img-section-212" data-flat-index="212" data-original-index="54"><div class="card-media-wrapper"><img src="images50/55.jpg" alt="Image 55" class="loaded"></div></article>
+      <article class="image-card" id="img-section-213" data-flat-index="213" data-original-index="55"><div class="card-media-wrapper"><img src="images50/56.jpg" alt="Image 56" class="loaded"></div></article>
+      <article class="image-card" id="img-section-214" data-flat-index="214" data-original-index="56"><div class="card-media-wrapper"><img src="images50/57_POLISH-LORE.jpg" alt="POLISH LORE" class="loaded"></div></article>
+      <article class="image-card" id="img-section-215" data-flat-index="215" data-original-index="57"><div class="card-media-wrapper"><img src="images50/58.jpg" alt="Image 58" class="loaded"></div></article>
+      <article class="image-card" id="img-section-216" data-flat-index="216" data-original-index="58"><div class="card-media-wrapper"><img src="images50/59_THE-POWER-OF-PAT.jpg" alt="THE POWER OF PAT" class="loaded"></div></article>
+      <article class="image-card" id="img-section-217" data-flat-index="217" data-original-index="59"><div class="card-media-wrapper"><img src="images50/60.jpg" alt="Image 60" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-218" data-flat-index="218" data-original-index="60" data-ad-pos="right"><div class="card-media-wrapper"><img src="images50/61.jpg" alt="Image 61" class="loaded"><a href="https://www.macys.com/shop/product/donna-karan-cashmere-mist-eau-de-parfum-fragrance-collection?ID=93140" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-right" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-219" data-flat-index="219" data-original-index="61"><div class="card-media-wrapper"><img src="images50/62_THE-BEAUTY-MATRIX.jpg" alt="THE BEAUTY MATRIX" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-220" data-flat-index="220" data-original-index="62" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/63.jpg" alt="Image 63" class="loaded"><a href="https://www.karllagerfeldparis.com/pages/fall-2026-campaign" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-221" data-flat-index="221" data-original-index="63"><div class="card-media-wrapper"><img src="images50/64_UP-NEXT.jpg" alt="UP NEXT" class="loaded"></div></article>
+      <article class="image-card" id="img-section-222" data-flat-index="222" data-original-index="64"><div class="card-media-wrapper"><img src="images50/65.jpg" alt="Image 65" class="loaded"></div></article>
+      <article class="image-card" id="img-section-223" data-flat-index="223" data-original-index="65"><div class="card-media-wrapper"><img src="images50/66_PERFECTING-PRADA.jpg" alt="PERFECTING PRADA" class="loaded"></div></article>
+      <article class="image-card" id="img-section-224" data-flat-index="224" data-original-index="66"><div class="card-media-wrapper"><img src="images50/67_WHO-MADE-YOUR-JEANS.jpg" alt="WHO MADE YOUR JEANS" class="loaded"></div></article>
+      <article class="image-card" id="img-section-225" data-flat-index="225" data-original-index="67"><div class="card-media-wrapper"><img src="images50/68.jpg" alt="Image 68" class="loaded"></div></article>
+      <article class="image-card" id="img-section-226" data-flat-index="226" data-original-index="68"><div class="card-media-wrapper"><img src="images50/69_THE-FORECAST.jpg" alt="THE FORECAST" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-227" data-flat-index="227" data-original-index="69" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/70.jpg" alt="Image 70" class="loaded"><a href="https://www.ae.com/us/en/c/aerie/cat4840006?pagetype=plp&utm_source=WWW&utm_medium=WWWzine&utm_campaign=WWW20" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-228" data-flat-index="228" data-original-index="70" data-ad-pos="right"><div class="card-media-wrapper"><img src="images50/71_HOT-V.-NOT.jpg" alt="HOT V. NOT" class="loaded"><a href="https://www.kendrascott.com/ever-gold-filled-jewelry" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-right" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-229" data-flat-index="229" data-original-index="71"><div class="card-media-wrapper"><img src="images50/72_Q&A_-WHITNEY-PEAK-[br]-Q&A_IRIS-LAW.jpg" alt="Q&A WHITNEY PEAK   Q&A IRIS LAW" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-230" data-flat-index="230" data-original-index="72" data-ad-pos="right"><div class="card-media-wrapper"><img src="images50/73_POP-QUIZ.jpg" alt="POP QUIZ" class="loaded"><a href="https://www.isdin.com/us/p/ageless-34-fl-oz/3431" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-right" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card" id="img-section-231" data-flat-index="231" data-original-index="73"><div class="card-media-wrapper"><img src="images50/74_FASHION-HIGH.jpg" alt="FASHION HIGH" class="loaded"></div></article>
+      <article class="image-card" id="img-section-232" data-flat-index="232" data-original-index="74"><div class="card-media-wrapper"><img src="images50/75_HOROSCOPES-[br]-FASHION-FORTUNE-TELLER.jpg" alt="HOROSCOPES   FASHION FORTUNE TELLER" class="loaded"></div></article>
+      <article class="image-card" id="img-section-233" data-flat-index="233" data-original-index="75"><div class="card-media-wrapper"><img src="images50/76_GUESS-THE-YEAR.jpg" alt="GUESS THE YEAR" class="loaded"></div></article>
+      <article class="image-card" id="img-section-234" data-flat-index="234" data-original-index="76"><div class="card-media-wrapper"><img src="images50/77_LETTERS-TO-2046.jpg" alt="LETTERS TO 2046" class="loaded"></div></article>
+      <article class="image-card has-ad-link" id="img-section-235" data-flat-index="235" data-original-index="77" data-ad-pos="right"><div class="card-media-wrapper"><img src="images50/78_THE-LONG-GAME.jpg" alt="THE LONG GAME" class="loaded"><a href="https://www.tiffany.com/designers-collections/tiffany-hardwear/" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-right" aria-label="Advertisement Link"></a></div></article>
+      <article class="image-card has-ad-link" id="img-section-236" data-flat-index="236" data-original-index="78" data-ad-pos="full"><div class="card-media-wrapper"><img src="images50/79.jpg" alt="Image 79" class="loaded"><a href="https://www.tiffany.com/designers-collections/tiffany-hardwear/" target="_blank" rel="noopener noreferrer" class="ad-link-overlay ad-pos-full" aria-label="Advertisement Link"></a></div></article>
+      <!-- STREAM_END -->
+    </main>
   </div>
 
-  <!-- Image Modal Backdrop -->
-  <div id="image-modal" class="modal-backdrop" role="dialog" aria-modal="true"></div>
+  <!-- Lightbox Modal with 200% Direct Zoom & Pan -->
+  <div id="image-modal" class="modal-backdrop">
+    <!-- Fixed Top Right Close Button -->
+    <button class="modal-close-btn" id="modal-close-btn" aria-label="Close modal">✕</button>
+
+    <div class="modal-pan-container" id="modal-pan-container">
+      <img id="modal-img-zoomed" class="modal-img-zoomed" src="" alt="Zoomed View" />
+    </div>
+
+    <!-- Pan Hint Indicator (Bottom Right crossed arrows) -->
+    <div class="pan-hint-indicator" aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        <path d="M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z"/>
+      </svg>
+    </div>
+  </div>
 
   <script src="app.js"></script>
 </body>

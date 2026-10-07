@@ -1,290 +1,418 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwd1geSoVKC6w3HIhkv8OOUC9sYHxSBIaOEKWTBwckokwuyZ6tS4te891-ggGhrOEzFDg/exec";
-
-  const statusOverlay = document.getElementById("status-overlay");
-  const spinner = document.getElementById("loading-spinner");
-  const errorBox = document.getElementById("error-box");
-  const errorMessage = document.getElementById("error-message");
-  const retryBtn = document.getElementById("retry-btn");
-
   const tocContainer = document.getElementById("toc");
   const streamContainer = document.getElementById("image-stream");
-  const modal = document.getElementById("image-modal");
+  const sidebar = document.querySelector(".sidebar");
+
+  const cards = streamContainer.querySelectorAll(".image-card");
+
+  // Calculate real unique image count from total DOM cards (triple buffer set)
+  const totalCardsCount = cards.length;
+  const realImageCount = totalCardsCount > 0 ? totalCardsCount / 3 : 0;
+
+  if (realImageCount === 0) return;
+
+  // Create & Inject Mobile Drawer Backdrop
+  const drawerBackdrop = document.createElement("div");
+  drawerBackdrop.className = "drawer-backdrop";
+  document.querySelector(".app-container").appendChild(drawerBackdrop);
 
   let currentIndex = 0;
-  let realImageCount = 0;
   let isTicking = false;
   let isTeleporting = false;
-  
-  let activeClone = null;
-  let activeSourceImg = null;
+  let isDrawerOpen = false;
+  let isInitialLoad = true;
 
-  const SCALE_MIN = 0.40;
+  const SCALE_MIN = 0.70;
+  const SHADOW_OFFSET_MAX = 5;
+  const SHADOW_BLUR_MAX = 12;
+  const SHADOW_ALPHA_MAX = 0.35;
 
-  function formatTitle(filename) {
-    return filename
-      .replace(/\.[^/.]+$/, "")
-      .replace(/[-_]/g, " ")
-      .replace(/\s+/g, " ")
-      .trim();
+  // Mobile Drawer Control Functions
+  const drawerToggle = document.getElementById("drawer-toggle");
+
+  function openDrawer() {
+    isDrawerOpen = true;
+    sidebar.classList.add("is-open");
+    drawerBackdrop.classList.add("is-open");
+    if (drawerToggle) drawerToggle.innerHTML = "CLOSE";
   }
 
-  function showLoading() {
-    statusOverlay.classList.remove("hidden");
-    spinner.classList.remove("hidden");
-    errorBox.classList.add("hidden");
+  function closeDrawer() {
+    isDrawerOpen = false;
+    sidebar.classList.remove("is-open");
+    drawerBackdrop.classList.remove("is-open");
+    if (drawerToggle) drawerToggle.innerHTML = "INDEX";
   }
 
-  function showError(msg) {
-    statusOverlay.classList.remove("hidden");
-    spinner.classList.add("hidden");
-    errorBox.classList.remove("hidden");
-    errorMessage.textContent = msg;
+  function toggleDrawer() {
+    if (isDrawerOpen) {
+      closeDrawer();
+    } else {
+      openDrawer();
+    }
   }
 
-  function hideStatus() {
-    statusOverlay.classList.add("hidden");
+  if (drawerToggle) {
+    drawerToggle.addEventListener("click", toggleDrawer);
+  }
+  drawerBackdrop.addEventListener("click", closeDrawer);
+
+  // Helper function to set the active class on a target TOC element
+  function setTOCActiveElement(targetLink, shouldScroll = true) {
+    const currentTocLinks = tocContainer.querySelectorAll(".toc-item");
+    currentTocLinks.forEach((link) => {
+      if (link === targetLink) {
+        link.classList.add("active");
+        if (shouldScroll) {
+          keepActiveTocInView(link);
+        }
+      } else {
+        link.classList.remove("active");
+      }
+    });
   }
 
-  retryBtn.addEventListener("click", () => {
-    loadDriveImages();
+  // Custom TOC scroll positioning to keep active item ~5 items above the bottom fade zone
+  function keepActiveTocInView(activeItem) {
+    const tocWrapper = document.getElementById("toc-wrapper");
+    if (!tocWrapper || !activeItem) return;
+
+    const itemHeight = activeItem.offsetHeight || 28; // Standard line height (~28px)
+    const offsetBuffer = itemHeight * 5;              // 5-item buffer height (~140px)
+
+    const wrapperRect = tocWrapper.getBoundingClientRect();
+    const itemRect = activeItem.getBoundingClientRect();
+
+    // 1. Trigger scroll down if active item enters the 5-item bottom threshold
+    if (itemRect.bottom > (wrapperRect.bottom - offsetBuffer)) {
+      tocWrapper.scrollTop += (itemRect.bottom - (wrapperRect.bottom - offsetBuffer));
+    } 
+    // 2. Trigger scroll up if active item enters the top threshold
+    else if (itemRect.top < (wrapperRect.top + itemHeight)) {
+      tocWrapper.scrollTop -= ((wrapperRect.top + itemHeight) - itemRect.top);
+    }
+  }
+
+  // Setup TOC Click Handlers (Queried dynamically from current DOM)
+  tocContainer.querySelectorAll(".toc-item").forEach((link) => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      const originalIndex = parseInt(link.getAttribute("data-original-index"), 10);
+
+      // Force instant active styling on click
+      setTOCActiveElement(link, true);
+
+      // Scroll carousel stream to target image section
+      scrollToOriginalIndex(originalIndex);
+
+      if (window.innerWidth < 800) {
+        closeDrawer();
+      }
+    });
   });
 
-  loadDriveImages();
-  setupKeyboardControls();
-  setupModal();
+  // Setup "IN THIS ISSUE" Header Click Handler -> Scrolls to Entry 0
+  const sidebarHeader = sidebar.querySelector(".sidebar-header h2");
+  if (sidebarHeader) {
+    sidebarHeader.style.cursor = "pointer";
+    sidebarHeader.addEventListener("click", () => {
+      scrollToOriginalIndex(0);
 
-  async function loadDriveImages() {
-    showLoading();
-
-    try {
-      const response = await fetch(APPS_SCRIPT_URL);
-      if (!response.ok) throw new Error("Failed to fetch Google Drive folder");
-
-      const items = await response.json();
-
-      if (Array.isArray(items) && items.length > 0) {
-        initGallery(items);
-      } else {
-        showError("No images found in your Google Drive folder.");
+      if (window.innerWidth < 800) {
+        closeDrawer();
       }
-    } catch (err) {
-      console.error("Could not load Google Drive images:", err);
-      showError("Unable to connect to Google Drive. Please check your network or script URL.");
-    }
+    });
   }
 
-  function initGallery(items) {
-    realImageCount = items.length;
-    tocContainer.innerHTML = "";
-    streamContainer.innerHTML = "";
+  // ==========================================================================
+  // DIRECT ZOOM & DRAG-TO-PAN LIGHTBOX (Supports Positional Ad Overlays)
+  // ==========================================================================
+  const modal = document.getElementById("image-modal");
+  const modalPanContainer = document.getElementById("modal-pan-container");
+  const modalImgZoomed = document.getElementById("modal-img-zoomed");
+  const modalCloseBtn = document.getElementById("modal-close-btn");
 
-    let loadedCount = 0;
-    let statusHidden = false;
-    const targetLoadCount = Math.min(5, realImageCount);
+  let isDragging = false;
+  let dragMoved = false; // Flag to distinguish drag pan from a simple click
+  let startX = 0, startY = 0;
+  let currentX = 0, currentY = 0;
 
-    const revealPage = () => {
-      if (!statusHidden) {
-        statusHidden = true;
-        hideStatus();
-      }
-    };
+  // Open Modal directly on click of content (or content side of split ads)
+  cards.forEach((card) => {
+    const adPos = card.getAttribute("data-ad-pos");
 
-    // Fallback safety timer: reveal page after 6 seconds even if network is slow
-    setTimeout(revealPage, 6000);
+    // Skip full-page ad cards completely (they navigate externally via overlay)
+    if (adPos === "full") return;
 
-    // Build Table of Contents
-    items.forEach((item, originalIndex) => {
-      const cleanTitle = formatTitle(item.name);
+    const img = card.querySelector("img");
+    if (img) {
+      img.addEventListener("click", (e) => {
+        // If an overlay element handles an ad click on this spread, ignore zoom
+        if (e.target.classList.contains("ad-link-overlay")) return;
 
-      const tocLink = document.createElement("a");
-      tocLink.href = `#`;
-      tocLink.className = "toc-item";
-      tocLink.textContent = cleanTitle;
-      tocLink.id = `toc-link-${originalIndex}`;
-      
-      tocLink.addEventListener("click", (e) => {
-        e.preventDefault();
-        scrollToOriginalIndex(originalIndex);
-      });
+        if (!modal || !modalImgZoomed) return;
 
-      tocContainer.appendChild(tocLink);
-    });
+        // 1. Immediately open with the low-res cached image
+        modalImgZoomed.src = img.src;
+        modalImgZoomed.alt = img.alt;
 
-    // Triple Buffer Stream
-    const tripleBuffer = [...items, ...items, ...items];
+        // 2. Derive HD URL by swapping 'images50' with 'imagesZoom'
+        const lowResSrc = img.src;
+        const highResSrc = lowResSrc.replace("/images50/", "/imagesZoom/").replace("images50/", "imagesZoom/");
 
-    const observerOptions = {
-      root: streamContainer,
-      rootMargin: "-45% 0px -45% 0px",
-      threshold: 0
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting && !isTeleporting) {
-          const flatIndex = parseInt(entry.target.getAttribute("data-flat-index"), 10);
-          currentIndex = flatIndex % realImageCount;
-          updateActiveTOC(currentIndex);
-        }
-      });
-    }, observerOptions);
-
-    tripleBuffer.forEach((item, flatIndex) => {
-      const originalIndex = flatIndex % realImageCount;
-      const cleanTitle = formatTitle(item.name);
-      const sectionId = `img-section-${flatIndex}`;
-
-      const cardContainer = document.createElement("article");
-      cardContainer.className = "image-card";
-      cardContainer.id = sectionId;
-      cardContainer.setAttribute("data-flat-index", flatIndex);
-      cardContainer.setAttribute("data-original-index", originalIndex);
-
-      const img = document.createElement("img");
-      img.src = item.src;
-      img.alt = cleanTitle;
-      img.loading = "lazy";
-
-      // Fade image in as it finishes loading & track first 5 loaded images
-      const onImageLoaded = () => {
-        img.classList.add("loaded");
-        loadedCount++;
-        
-        if (loadedCount >= targetLoadCount) {
-          revealPage();
-        }
-
-        if (!isTicking) {
-          requestAnimationFrame(updateWheelEffect);
-          isTicking = true;
-        }
-      };
-
-      if (img.complete) {
-        onImageLoaded();
-      } else {
-        img.onload = onImageLoaded;
-        img.onerror = () => {
-          loadedCount++;
-          if (loadedCount >= targetLoadCount) revealPage();
+        // 3. Swap in high-res asset asynchronously on demand
+        const hdLoader = new Image();
+        hdLoader.src = highResSrc;
+        hdLoader.onload = () => {
+          if (modal.classList.contains("active")) {
+            modalImgZoomed.src = highResSrc;
+          }
         };
-      }
+        
+        // Set dynamic zoom scale based on viewport width (< 800px = Mobile)
+        const isMobile = window.innerWidth < 800;
+        modalImgZoomed.style.width = isMobile ? "300vw" : "200vw";
 
-      cardContainer.addEventListener("click", () => {
-        if (img.classList.contains("loaded")) {
-          openModal(img);
-        }
+        // Reset offsets to dead center
+        currentX = 0;
+        currentY = 0;
+        modalImgZoomed.style.transition = "none";
+        modalImgZoomed.style.transform = `translate3d(0px, 0px, 0px)`;
+        
+        modal.classList.add("active");
       });
-
-      cardContainer.appendChild(img);
-      streamContainer.appendChild(cardContainer);
-
-      observer.observe(cardContainer);
-    });
-
-    streamContainer.addEventListener("scroll", onScroll);
-    window.addEventListener("resize", onScroll);
-
-    requestAnimationFrame(() => {
-      const middleSetFirstCard = document.getElementById(`img-section-${realImageCount}`);
-      if (middleSetFirstCard) {
-        middleSetFirstCard.scrollIntoView({ block: "center" });
-      }
-      currentIndex = 0;
-      updateActiveTOC(0);
-      updateWheelEffect();
-    });
-  }
-
-  function openModal(sourceImg) {
-    if (activeClone) return;
-
-    activeSourceImg = sourceImg;
-    const sourceRect = sourceImg.getBoundingClientRect();
-
-    const padding = 20;
-    const maxW = window.innerWidth - padding * 2;
-    const maxH = window.innerHeight - padding * 2;
-    const imgRatio = (sourceImg.naturalWidth || sourceRect.width) / (sourceImg.naturalHeight || sourceRect.height);
-
-    let targetW = maxW;
-    let targetH = targetW / imgRatio;
-
-    if (targetH > maxH) {
-      targetH = maxH;
-      targetW = targetH * imgRatio;
     }
-
-    const targetLeft = (window.innerWidth - targetW) / 2;
-    const targetTop = (window.innerHeight - targetH) / 2;
-
-    activeClone = sourceImg.cloneNode(true);
-    activeClone.className = "expanding-clone";
-
-    activeClone.style.left = `${targetLeft}px`;
-    activeClone.style.top = `${targetTop}px`;
-    activeClone.style.width = `${targetW}px`;
-    activeClone.style.height = `${targetH}px`;
-
-    const deltaX = sourceRect.left - targetLeft;
-    const deltaY = sourceRect.top - targetTop;
-    const scaleX = sourceRect.width / targetW;
-    const scaleY = sourceRect.height / targetH;
-
-    activeClone.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0) scale(${scaleX}, ${scaleY})`;
-    activeClone.style.transition = "none";
-
-    document.body.appendChild(activeClone);
-    sourceImg.style.visibility = "hidden";
-
-    requestAnimationFrame(() => {
-      modal.classList.add("active");
-      activeClone.style.transition = "transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s ease";
-      activeClone.style.transform = "translate3d(0, 0, 0) scale(1, 1)";
-      activeClone.style.boxShadow = "0 25px 50px -12px rgba(0, 0, 0, 0.5)";
-    });
-
-    activeClone.addEventListener("click", closeModal);
-  }
+  });
 
   function closeModal() {
-    if (!activeClone || !activeSourceImg) return;
+    if (modal) modal.classList.remove("active");
+  }
 
-    const cloneToClose = activeClone;
-    const imgToRestore = activeSourceImg;
-    activeClone = null;
-    activeSourceImg = null;
+  if (modalCloseBtn) {
+    modalCloseBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      closeModal();
+    });
+  }
 
-    const sourceRect = imgToRestore.getBoundingClientRect();
-    const targetLeft = parseFloat(cloneToClose.style.left);
-    const targetTop = parseFloat(cloneToClose.style.top);
-    const targetW = parseFloat(cloneToClose.style.width);
-    const targetH = parseFloat(cloneToClose.style.height);
+  // Prevent browser native image drag preview ghost
+  if (modalImgZoomed) {
+    modalImgZoomed.addEventListener("dragstart", (e) => e.preventDefault());
+  }
 
-    const deltaX = sourceRect.left - targetLeft;
-    const deltaY = sourceRect.top - targetTop;
-    const scaleX = sourceRect.width / targetW;
-    const scaleY = sourceRect.height / targetH;
+  // Clamp helper to keep image edges from dragging past screen boundaries
+  function clamp(val, min, max) {
+    return Math.max(min, Math.min(max, val));
+  }
 
-    modal.classList.remove("active");
+  // Mousedown / Touchstart: Immediately initiate drag mode
+  function startDrag(e) {
+    if (!modalImgZoomed || !modal.classList.contains("active")) return;
+    
+    // Prevent default touch/drag actions on mobile
+    if (e.cancelable) e.preventDefault();
 
-    cloneToClose.style.transition = "transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s ease";
-    cloneToClose.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0) scale(${scaleX}, ${scaleY})`;
-    cloneToClose.style.boxShadow = "10px 10px 25px rgba(0, 0, 0, 0.45)";
+    isDragging = true;
+    dragMoved = false;
+    modalImgZoomed.style.transition = "none"; // Remove transition so pan tracks 1:1 instantly
+    
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    
+    startX = clientX - currentX;
+    startY = clientY - currentY;
+  }
 
-    setTimeout(() => {
-      imgToRestore.style.visibility = "visible";
-      if (cloneToClose.parentNode) {
-        cloneToClose.parentNode.removeChild(cloneToClose);
+  // Mousemove / Touchmove: Pan live as cursor moves
+  function moveDrag(e) {
+    if (!isDragging || !modalImgZoomed) return;
+    
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+    const rawX = clientX - startX;
+    const rawY = clientY - startY;
+
+    // Check if movement exceeds 5px threshold to flag as active drag (vs static click)
+    if (Math.abs(rawX - currentX) > 5 || Math.abs(rawY - currentY) > 5) {
+      dragMoved = true;
+    }
+
+    // Calculate maximum drag boundaries based on active image scale overflow
+    const imgRect = modalImgZoomed.getBoundingClientRect();
+    const maxDragX = Math.max(0, (imgRect.width - window.innerWidth) / 2);
+    const maxDragY = Math.max(0, (imgRect.height - window.innerHeight) / 2);
+
+    currentX = clamp(rawX, -maxDragX, maxDragX);
+    currentY = clamp(rawY, -maxDragY, maxDragY);
+
+    modalImgZoomed.style.transform = `translate3d(${currentX}px, ${currentY}px, 0px)`;
+  }
+
+  // Mouseup / Touchend: Release drag state instantly
+  function endDrag() {
+    if (!isDragging) return;
+    isDragging = false;
+  }
+
+  if (modalPanContainer) {
+    // Start drag on mousedown/touchstart inside pan container
+    modalPanContainer.addEventListener("mousedown", startDrag);
+    modalPanContainer.addEventListener("touchstart", startDrag, { passive: false });
+
+    // Track movement globally on window so fast dragging doesn't break drag state
+    window.addEventListener("mousemove", moveDrag);
+    window.addEventListener("touchmove", moveDrag, { passive: false });
+
+    // Stop drag immediately on mouseup/touchend
+    window.addEventListener("mouseup", endDrag);
+    window.addEventListener("touchend", endDrag);
+
+    // Click handler: If user clicked/tapped without panning, close modal
+    modalPanContainer.addEventListener("click", () => {
+      if (!dragMoved) {
+        closeModal();
       }
-    }, 500);
+    });
   }
 
-  function setupModal() {
-    modal.addEventListener("click", closeModal);
+  // Close modal on background backdrop click
+  if (modal) {
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
   }
 
+  // ==========================================================================
+  // STREAM OBSERVER & SCROLL LOGIC
+  // ==========================================================================
+  const observerOptions = {
+    root: streamContainer,
+    rootMargin: "-45% 0px -45% 0px",
+    threshold: 0
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting && !isTeleporting) {
+        const flatIndex = parseInt(entry.target.getAttribute("data-flat-index"), 10);
+        currentIndex = flatIndex % realImageCount;
+        updateActiveTOC(currentIndex);
+      }
+    });
+  }, observerOptions);
+
+  cards.forEach(card => observer.observe(card));
+
+  streamContainer.addEventListener("scroll", onScroll);
+  window.addEventListener("resize", () => {
+    if (window.innerWidth >= 800 && isDrawerOpen) {
+      closeDrawer();
+    }
+    onScroll();
+  });
+
+  // Custom Smooth Scroll Helper (supports specific duration in ms)
+  function animateScrollTo(container, targetY, duration) {
+    const startY = container.scrollTop;
+    const distance = targetY - startY;
+    const startTime = performance.now();
+
+    function step(currentTime) {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      // Smooth ease-out cubic curve (decelerates nicely at the end)
+      const easeProgress = 1 - Math.pow(1 - progress, 3);
+
+      container.scrollTop = startY + distance * easeProgress;
+      updateWheelEffect();
+
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      }
+    }
+
+    requestAnimationFrame(step);
+  }
+
+  // Helper to ensure all image elements in the carousel have reported dimensions
+  function waitForAllImages() {
+    const allImgs = Array.from(streamContainer.querySelectorAll("img"));
+    const promises = allImgs.map(img => {
+      if (img.complete && img.naturalHeight !== 0) {
+        return Promise.resolve();
+      }
+      return new Promise(resolve => {
+        img.addEventListener("load", resolve, { once: true });
+        img.addEventListener("error", resolve, { once: true });
+      });
+    });
+    return Promise.all(promises);
+  }
+
+  // Initial Scroll Setup with 5-Card, 3-Second Intro Scroll
+  window.addEventListener("load", async () => {
+    // 1. Force TOC container to start cleanly at top on load
+    const tocWrapper = document.getElementById("toc-wrapper");
+    if (tocWrapper) {
+      tocWrapper.scrollTop = 0;
+    }
+
+    // 2. Force await for all carousel image dimensions to register on server connections
+    await waitForAllImages();
+
+    const targetCard = document.getElementById(`img-section-${realImageCount}`);
+    if (!targetCard) return;
+
+    const startCardIndex = Math.max(0, realImageCount - 5);
+    const startCard = document.getElementById(`img-section-${startCardIndex}`);
+
+    // Lock teleportation temporarily during initial alignment
+    isTeleporting = true;
+
+    // Snap silently to start card behind white overlay using stable offsetTop
+    if (startCard) {
+      const containerRect = streamContainer.getBoundingClientRect();
+      const cardTrueCenter = startCard.offsetTop + (startCard.offsetHeight / 2);
+      streamContainer.scrollTop = cardTrueCenter - (containerRect.height / 2);
+    }
+
+    updateWheelEffect();
+    isTeleporting = false;
+
+    // 3. Dismiss loading overlay & trigger 3-second roll into Entry 0
+    const loadingOverlay = document.getElementById("loading-overlay");
+
+    const triggerSlowScroll = () => {
+      // Lock teleport jumps during active 3s intro animation
+      isTeleporting = true;
+
+      const containerRect = streamContainer.getBoundingClientRect();
+      const cardTrueCenter = targetCard.offsetTop + (targetCard.offsetHeight / 2);
+      const targetScrollTop = cardTrueCenter - (containerRect.height / 2);
+
+      animateScrollTo(streamContainer, targetScrollTop, 3000);
+
+      setTimeout(() => {
+        isTeleporting = false;
+        isInitialLoad = false; // Enables auto-scrolling for all subsequent user navigation
+      }, 3100);
+    };
+
+    if (loadingOverlay) {
+      setTimeout(() => {
+        loadingOverlay.classList.add("is-hidden");
+        setTimeout(triggerSlowScroll, 200);
+      }, 150);
+    } else {
+      triggerSlowScroll();
+    }
+  });
+
+  // Dynamic Wheel Effect and Dropshadow Calculation
   function updateWheelEffect() {
     const totalScrollHeight = streamContainer.scrollHeight;
     const singleSetHeight = totalScrollHeight / 3;
@@ -302,10 +430,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const containerRect = streamContainer.getBoundingClientRect();
     const containerCenter = containerRect.top + containerRect.height / 2;
-    const cards = streamContainer.querySelectorAll(".image-card");
     const halfContainerHeight = containerRect.height / 2;
-    const viewportWidth = window.innerWidth;
-    const unscaledLeft = viewportWidth * 0.5;
 
     cards.forEach((card) => {
       const cardRect = card.getBoundingClientRect();
@@ -313,20 +438,32 @@ document.addEventListener("DOMContentLoaded", () => {
       const distanceFromCenter = cardCenter - containerCenter;
 
       const unscaledHeight = card.offsetHeight;
-      const unscaledWidth = card.offsetWidth;
 
       const maxDist = halfContainerHeight + (unscaledHeight * SCALE_MIN) / 2;
       const normalizedDist = Math.min(1, Math.max(0, Math.abs(distanceFromCenter) / maxDist));
 
       const scale = 1 - (normalizedDist * (1 - SCALE_MIN));
 
-      const targetRightShift = (viewportWidth - unscaledLeft) - (unscaledWidth * scale);
-      const translateX = Math.max(0, targetRightShift * normalizedDist);
+      const translateX = 0;
 
       const sign = distanceFromCenter >= 0 ? 1 : -1;
       const translateY = -sign * (1 - scale) * (unscaledHeight / 2);
 
-      const opacity = 1 - (normalizedDist * 0.35);
+      // Full opacity (1.0) within the middle 40%-60% zone, fading out faster toward the edges
+      const fadeThreshold = 0.5;
+      const opacity = normalizedDist <= fadeThreshold 
+        ? 1 
+        : Math.max(0, 1 - ((normalizedDist - fadeThreshold) / (1 - fadeThreshold)) * 0.85);
+
+      const shadowProgress = Math.max(0, 1 - normalizedDist);
+      const currentOffset = (SHADOW_OFFSET_MAX * shadowProgress).toFixed(1);
+      const currentBlur = (SHADOW_BLUR_MAX * shadowProgress).toFixed(1);
+      const currentAlpha = (SHADOW_ALPHA_MAX * shadowProgress).toFixed(2);
+
+      const img = card.querySelector("img");
+      if (img) {
+        img.style.boxShadow = `${currentOffset}px ${currentOffset}px ${currentBlur}px rgba(0, 0, 0, ${currentAlpha})`;
+      }
 
       card.style.transform = `translateX(${translateX}px) translateY(${translateY}px) scale(${scale})`;
       card.style.opacity = opacity;
@@ -343,21 +480,23 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function scrollToOriginalIndex(targetOriginalIndex) {
-    const cards = Array.from(streamContainer.querySelectorAll(".image-card"));
     const containerRect = streamContainer.getBoundingClientRect();
-    const containerCenter = containerRect.top + containerRect.height / 2;
+    const containerCenter = streamContainer.scrollTop + (containerRect.height / 2);
 
-    const matchingCards = cards.filter(card => 
+    // Find all matching triple-buffered cards for this index
+    const matchingCards = Array.from(cards).filter(card => 
       parseInt(card.getAttribute("data-original-index"), 10) === targetOriginalIndex
     );
 
     let closestCard = matchingCards[0];
     let minDistance = Infinity;
 
+    // Determine which duplicate set of the card is closest to current viewport center
     matchingCards.forEach((card) => {
-      const cardRect = card.getBoundingClientRect();
-      const cardCenter = cardRect.top + cardRect.height / 2;
-      const dist = Math.abs(cardCenter - containerCenter);
+      const cardUnscaledHeight = card.offsetHeight;
+      const cardTrueCenter = card.offsetTop + (cardUnscaledHeight / 2);
+      const dist = Math.abs(cardTrueCenter - containerCenter);
+      
       if (dist < minDistance) {
         minDistance = dist;
         closestCard = card;
@@ -365,40 +504,103 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     if (closestCard) {
-      closestCard.scrollIntoView({ behavior: "smooth", block: "center" });
+      // Calculate unscaled true center scroll target
+      const cardUnscaledHeight = closestCard.offsetHeight;
+      const cardTrueCenter = closestCard.offsetTop + (cardUnscaledHeight / 2);
+      const targetScrollTop = cardTrueCenter - (containerRect.height / 2);
+
+      // Lock teleportation during TOC navigation scroll pass
+      isTeleporting = true;
+
+      // Smoothly animate to exact dead-center over 800ms
+      animateScrollTo(streamContainer, targetScrollTop, 800);
+
+      setTimeout(() => {
+        isTeleporting = false;
+      }, 850);
     }
   }
 
-  function updateActiveTOC(activeIndex) {
-    const links = tocContainer.querySelectorAll(".toc-item");
-    links.forEach((link, idx) => {
-      if (idx === activeIndex) {
-        link.classList.add("active");
-        link.scrollIntoView({ block: "nearest" });
+  function updateActiveTOC(currentImageIndex) {
+    const currentTocLinks = Array.from(tocContainer.querySelectorAll(".toc-item"));
+    if (currentTocLinks.length === 0) return;
+
+    // Get the index of the very first TOC item (Editor's Letter = index 10)
+    const firstTocIndex = parseInt(currentTocLinks[0].getAttribute("data-original-index"), 10);
+
+    // If the current image is BEFORE the first TOC entry (e.g. cover or ads 0-9), clear all highlights
+    if (currentImageIndex < firstTocIndex) {
+      currentTocLinks.forEach((link) => link.classList.remove("active"));
+      return;
+    }
+
+    let activeTocLink = currentTocLinks[0];
+    for (let i = 0; i < currentTocLinks.length; i++) {
+      const linkIndex = parseInt(currentTocLinks[i].getAttribute("data-original-index"), 10);
+      if (linkIndex <= currentImageIndex) {
+        activeTocLink = currentTocLinks[i];
       } else {
-        link.classList.remove("active");
+        break;
       }
-    });
+    }
+
+    // On initial load, highlight active link without shifting the scroll wrapper
+    setTOCActiveElement(activeTocLink, !isInitialLoad);
   }
 
-  function setupKeyboardControls() {
-    window.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") {
-        closeModal();
-        return;
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (isDrawerOpen) closeDrawer();
+      if (modal && modal.classList.contains("active")) {
+        modal.classList.remove("active");
       }
+      return;
+    }
 
-      if (activeClone) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      const nextIndex = (currentIndex + 1) % realImageCount;
+      scrollToOriginalIndex(nextIndex);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      const prevIndex = (currentIndex - 1 + realImageCount) % realImageCount;
+      scrollToOriginalIndex(prevIndex);
+    }
+  });
 
-      if (e.key === "ArrowDown") {
-        e.preventDefault();
-        const nextIndex = (currentIndex + 1) % realImageCount;
-        scrollToOriginalIndex(nextIndex);
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        const prevIndex = (currentIndex - 1 + realImageCount) % realImageCount;
-        scrollToOriginalIndex(prevIndex);
-      }
+  // TOC Scroll Indicator (Auto-hide down arrow when scrolled to bottom & Click to Scroll)
+  const tocWrapper = document.getElementById("toc-wrapper");
+  const tocIndicator = document.getElementById("toc-scroll-indicator");
+
+  function updateTOCScrollIndicator() {
+    if (!tocWrapper || !tocIndicator) return;
+
+    // Check if scrolled near the bottom
+    const isAtBottom = tocWrapper.scrollHeight - tocWrapper.scrollTop <= tocWrapper.clientHeight + 5;
+    
+    // Check if the content is short enough that no scrolling is needed
+    const isScrollable = tocWrapper.scrollHeight > tocWrapper.clientHeight;
+
+    if (isAtBottom || !isScrollable) {
+      tocIndicator.classList.add("is-hidden");
+    } else {
+      tocIndicator.classList.remove("is-hidden");
+    }
+  }
+
+  if (tocWrapper) {
+    tocWrapper.addEventListener("scroll", updateTOCScrollIndicator);
+    updateTOCScrollIndicator();
+  }
+
+  // Add click handler to scroll down the TOC list
+  if (tocIndicator && tocWrapper) {
+    tocIndicator.addEventListener("click", () => {
+      // Scrolls down by roughly 5 TOC items (~240px)
+      tocWrapper.scrollBy({
+        top: 240,
+        behavior: "smooth"
+      });
     });
   }
 });
