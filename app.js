@@ -353,12 +353,10 @@ document.addEventListener("DOMContentLoaded", () => {
     return Promise.all(promises);
   }
 
-  // Universal Hardware-Safe Intro Scroll Setup
+  // Sequential Mobile Intro Pipeline (Loop 1 First -> Background Downloads -> Synchronized Exit)
   window.addEventListener("load", async () => {
-    let isDataReady = false;
     let isDismissed = false;
-    const startTime = Date.now();
-    const MIN_ANIMATION_TIME = 2200; // Guarantees 1 complete visual cycle (~2.2s)
+    const LOOP_DURATION = 2000; // Duration of one full loop cycle in ms (2.0s)
 
     const tocWrapper = document.getElementById("toc-wrapper");
     if (tocWrapper) tocWrapper.scrollTop = 0;
@@ -395,7 +393,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // Load SVG asset directly
+    // 1. Fetch & inject SVG into loading wrapper
     if (logoWrapper) {
       try {
         const response = await fetch("assets/loading-animation.svg");
@@ -404,21 +402,23 @@ document.addEventListener("DOMContentLoaded", () => {
           logoWrapper.innerHTML = svgText;
         }
       } catch (e) {
-        console.warn(e);
+        console.warn("SVG fetch failed:", e);
       }
     }
 
-    // Safety net fallback timer (5 seconds max)
-    const safetyTimer = setTimeout(() => {
-      dismissOverlay();
-    }, 5000);
+    // 2. PHASE 1: Guarantee 1 full uninterrupted visual loop before starting network requests
+    await new Promise((resolve) => setTimeout(resolve, LOOP_DURATION));
 
-    // Await images
-    await waitForAllImages();
-    clearTimeout(safetyTimer);
-    isDataReady = true;
+    // 3. PHASE 2: Start background asset downloads (images load while SVG loops smoothly)
+    const downloadStartTime = Date.now();
 
-    // Align initial position behind overlay
+    const imageLoadPromise = waitForAllImages();
+    const networkTimeoutPromise = new Promise((resolve) => setTimeout(resolve, 4000));
+
+    // Race image downloads against a 4s mobile network safety cap
+    await Promise.race([imageLoadPromise, networkTimeoutPromise]);
+
+    // Align initial carousel scroll position behind overlay silently
     const startCardIndex = Math.max(0, realImageCount - 5);
     const startCard = document.getElementById(`img-section-${startCardIndex}`);
     if (startCard) {
@@ -430,14 +430,12 @@ document.addEventListener("DOMContentLoaded", () => {
       isTeleporting = false;
     }
 
-    // Calculate elapsed time & enforce completion of current loop boundary
-    const elapsed = Date.now() - startTime;
-    if (elapsed < MIN_ANIMATION_TIME) {
-      setTimeout(dismissOverlay, MIN_ANIMATION_TIME - elapsed);
-    } else {
-      const remainingInCycle = MIN_ANIMATION_TIME - (elapsed % MIN_ANIMATION_TIME);
-      setTimeout(dismissOverlay, remainingInCycle);
-    }
+    // 4. PHASE 3: Calculate remaining time in the active loop cycle for a perfect exit transition
+    const downloadDuration = Date.now() - downloadStartTime;
+    const currentLoopProgress = downloadDuration % LOOP_DURATION;
+    const timeToNextLoopBoundary = currentLoopProgress === 0 ? 0 : (LOOP_DURATION - currentLoopProgress);
+
+    setTimeout(dismissOverlay, timeToNextLoopBoundary);
   });
 
   // Dynamic Wheel Effect and Dropshadow Calculation
