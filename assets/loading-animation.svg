@@ -23,6 +23,14 @@
                 class="mask-stroke-zero" />
     </mask>
 
+    <!-- COMBINED MASK WITH DIRECT SHAPES (Mobile-Compatible) -->
+    <mask id="combined-2-0-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="534.37" height="540.69">
+      <polyline points="55.69 170.43 28.01 131.01 21.23 92.89 29.7 58.16 51.69 33.59 77.98 21.74 100.01 17.5 130.52 17.5 156.58 27.66 175.39 45.45 186.41 66.63 191.49 89.96 191.49 112.41 183.87 131.85 171.03 151.34 156.58 168.04 130.52 188.61 101.05 211.91 38.06 283.64 27.16 303.81 21.23 334.3 59.35 334.3 162.69 334.3 217.15 334.3" 
+                fill="none" stroke="#ffffff" stroke-width="140" stroke-linecap="butt" stroke-linejoin="round" class="mask-stroke-two" />
+      <polyline points="361.26 208.09 328.71 208.09 299.2 218.36 256.99 246.84 229.37 276.82 214.78 297.88 205.32 331.76 203.15 360.75 205.32 387.66 212.78 414.77 224.37 441.88 235.23 458.82 255.99 480.99 275.19 496.24 295.68 507.1 321.89 516.42 341.58 519.8 361.26 523.19 384.62 523.19 406.06 518.96 428.68 511.33 455.62 496.09 490.14 459.66 513.37 407.15 516.76 360.75 510.83 326.6 498.97 297.03 483.34 272.42 467.62 253.61 436.29 229.26 410.41 217.3 380.08 208.09 347.35 204.7"
+                fill="none" stroke="#ffffff" stroke-width="120" stroke-linecap="round" stroke-linejoin="round" class="mask-stroke-zero" />
+    </mask>
+    
     <style>
       .cls-1 {
         fill: #231f20;
@@ -164,7 +172,8 @@
       }
 
       #Bottom_of_the_2_and_the_0 {
-        mask: url(#two-draw-mask), url(#zero-draw-mask);
+        mask: url(#combined-2-0-mask);
+        -webkit-mask: url(#combined-2-0-mask);
       }
 
       .mask-stroke-two {
