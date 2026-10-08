@@ -30,7 +30,7 @@
       <polyline points="361.26 208.09 328.71 208.09 299.2 218.36 256.99 246.84 229.37 276.82 214.78 297.88 205.32 331.76 203.15 360.75 205.32 387.66 212.78 414.77 224.37 441.88 235.23 458.82 255.99 480.99 275.19 496.24 295.68 507.1 321.89 516.42 341.58 519.8 361.26 523.19 384.62 523.19 406.06 518.96 428.68 511.33 455.62 496.09 490.14 459.66 513.37 407.15 516.76 360.75 510.83 326.6 498.97 297.03 483.34 272.42 467.62 253.61 436.29 229.26 410.41 217.3 380.08 208.09 347.35 204.7"
                 fill="none" stroke="#ffffff" stroke-width="120" stroke-linecap="round" stroke-linejoin="round" class="mask-stroke-zero" />
     </mask>
-    
+
     <style>
       .cls-1 {
         fill: #231f20;
@@ -49,14 +49,14 @@
       }
 
       /* 
-        NEW TIMELINE BREAKDOWN (Total Duration: 3.875s loop):
-        0.000s - 1.000s (0% to 25.81%): Initial 1s Pause
-        1.000s - 1.250s (25.81% to 32.26%): "WHO" animates (0.25s)
-        1.125s - 1.375s (29.03% to 35.48%): "WHAT" animates (starts halfway through WHO)
-        1.250s - 1.500s (32.26% to 38.71%): "WEAR" animates (starts halfway through WHAT)
-        1.250s - 2.000s (32.26% to 51.61%): "2" unmasks (starts SAME TIME as WEAR, lasts 0.75s)
-        1.625s - 2.250s (41.94% to 58.06%): "0" unmasks (starts HALFWAY through 2, lasts 0.625s)
-        2.250s - 3.875s (58.06% to 100%): Hold full state before loop reverses
+        PRECISE 2.25s TIMELINE BREAKDOWN:
+        0.000s - 0.500s (0.00% to 22.22%): Initial 0.5s pause
+        0.500s - 0.750s (22.22% to 33.33%): "WHO" animates (0.25s)
+        0.625s - 0.875s (27.78% to 38.89%): "WHAT" animates
+        0.750s - 1.000s (33.33% to 44.44%): "WEAR" animates
+        0.750s - 1.500s (33.33% to 66.67%): "2" unmasks (0.75s)
+        1.125s - 1.750s (50.00% to 77.78%): "0" unmasks (0.625s)
+        1.750s - 2.250s (77.78% to 100%): 0.5s end pause before reversing
       */
 
       /* ==========================================
@@ -65,30 +65,30 @@
       #W-HO {
         transform-box: fill-box;
         transform-origin: center;
-        animation: animateW-HO 3.875s ease-in-out infinite alternate;
+        animation: animateW-HO 2.25s ease-in-out infinite alternate;
       }
 
       #HO {
         transform-box: fill-box;
         transform-origin: left center;
-        animation: animateHO 3.875s ease-in-out infinite alternate;
+        animation: animateHO 2.25s ease-in-out infinite alternate;
       }
 
       @keyframes animateW-HO {
-        0%, 25.81% {
+        0%, 22.22% {
           transform: translateX(10.2px);
         }
-        32.26%, 100% {
+        33.33%, 100% {
           transform: translateX(0);
         }
       }
 
       @keyframes animateHO {
-        0%, 25.81% {
+        0%, 22.22% {
           transform: translateX(-88.9px);
           opacity: 0;
         }
-        32.26%, 100% {
+        33.33%, 100% {
           transform: translateX(0);
           opacity: 1;
         }
@@ -100,30 +100,30 @@
       #W-HAT {
         transform-box: fill-box;
         transform-origin: center;
-        animation: animateW-HAT 3.875s ease-in-out infinite alternate;
+        animation: animateW-HAT 2.25s ease-in-out infinite alternate;
       }
 
       #HAT {
         transform-box: fill-box;
         transform-origin: left center;
-        animation: animateHAT 3.875s ease-in-out infinite alternate;
+        animation: animateHAT 2.25s ease-in-out infinite alternate;
       }
 
       @keyframes animateW-HAT {
-        0%, 29.03% {
+        0%, 27.78% {
           transform: translateX(220.48px);
         }
-        35.48%, 100% {
+        38.89%, 100% {
           transform: translateX(0);
         }
       }
 
       @keyframes animateHAT {
-        0%, 29.03% {
+        0%, 27.78% {
           transform: translateX(162.72px);
           opacity: 0;
         }
-        35.48%, 100% {
+        38.89%, 100% {
           transform: translateX(0);
           opacity: 1;
         }
@@ -135,30 +135,30 @@
       #W-EAR {
         transform-box: fill-box;
         transform-origin: center;
-        animation: animateW-EAR 3.875s ease-in-out infinite alternate;
+        animation: animateW-EAR 2.25s ease-in-out infinite alternate;
       }
 
       #EAR {
         transform-box: fill-box;
         transform-origin: left center;
-        animation: animateEAR 3.875s ease-in-out infinite alternate;
+        animation: animateEAR 2.25s ease-in-out infinite alternate;
       }
 
       @keyframes animateW-EAR {
-        0%, 32.26% {
+        0%, 33.33% {
           transform: translateX(1.24px);
         }
-        38.71%, 100% {
+        44.44%, 100% {
           transform: translateX(0);
         }
       }
 
       @keyframes animateEAR {
-        0%, 32.26% {
+        0%, 33.33% {
           transform: translateX(-54.71px);
           opacity: 0;
         }
-        38.71%, 100% {
+        44.44%, 100% {
           transform: translateX(0);
           opacity: 1;
         }
@@ -179,14 +179,14 @@
       .mask-stroke-two {
         stroke-dasharray: 1050;
         stroke-dashoffset: 1050;
-        animation: drawTwo 3.875s ease-in-out infinite alternate;
+        animation: drawTwo 2.25s ease-in-out infinite alternate;
       }
 
       @keyframes drawTwo {
-        0%, 32.26% {
+        0%, 33.33% {
           stroke-dashoffset: 1050;
         }
-        51.61%, 100% {
+        66.67%, 100% {
           stroke-dashoffset: 0;
         }
       }
@@ -194,14 +194,14 @@
       .mask-stroke-zero {
         stroke-dasharray: 1100;
         stroke-dashoffset: 1100;
-        animation: drawZero 3.875s ease-in-out infinite alternate;
+        animation: drawZero 2.25s ease-in-out infinite alternate;
       }
 
       @keyframes drawZero {
-        0%, 41.94% {
+        0%, 50.00% {
           stroke-dashoffset: 1100;
         }
-        58.06%, 100% {
+        77.78%, 100% {
           stroke-dashoffset: 0;
         }
       }
