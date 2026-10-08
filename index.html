@@ -23,7 +23,9 @@
 <body style="margin:0!important">
   <!-- Loading Overlay -->
   <div id="loading-overlay" class="loading-overlay">
-    <div id="loading-logo-wrapper" class="loading-logo-wrapper"></div>
+    <div id="loading-logo-wrapper" class="loading-logo-wrapper">
+      <object id="loading-svg-object" type="image/svg+xml" data="assets/loading-animation.svg"></object>
+    </div>
   </div>
 
   <!-- Fixed Brand Text in Top Left -->
@@ -348,7 +350,10 @@
     <button class="modal-close-btn" id="modal-close-btn" aria-label="Close modal">✕</button>
 
     <div class="modal-pan-container" id="modal-pan-container">
-      <img id="modal-img-zoomed" class="modal-img-zoomed" src="" alt="Zoomed View" />
+      <div class="modal-img-wrapper" id="modal-img-wrapper">
+        <img id="modal-img-zoomed" class="modal-img-zoomed" src="" alt="Zoomed View" />
+        <!-- Dynamic Ad Overlay will be injected here for zoomed split spreads -->
+      </div>
     </div>
 
     <!-- Pan Hint Indicator (Bottom Right crossed arrows) -->

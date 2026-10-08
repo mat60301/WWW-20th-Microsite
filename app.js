@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
     isDrawerOpen = false;
     sidebar.classList.remove("is-open");
     drawerBackdrop.classList.remove("is-open");
-    if (drawerToggle) drawerToggle.innerHTML = "INDEX";
+    if (drawerToggle) drawerToggle.innerHTML = "EXPLORE";
   }
 
   function toggleDrawer() {
@@ -125,10 +125,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================================================
-  // DIRECT ZOOM & DRAG-TO-PAN LIGHTBOX (Supports Positional Ad Overlays)
+  // DIRECT ZOOM & DRAG-TO-PAN LIGHTBOX (With Zoomed Split-Ad Support)
   // ==========================================================================
   const modal = document.getElementById("image-modal");
   const modalPanContainer = document.getElementById("modal-pan-container");
+  const modalImgWrapper = document.getElementById("modal-img-wrapper");
   const modalImgZoomed = document.getElementById("modal-img-zoomed");
   const modalCloseBtn = document.getElementById("modal-close-btn");
 
@@ -137,9 +138,11 @@ document.addEventListener("DOMContentLoaded", () => {
   let startX = 0, startY = 0;
   let currentX = 0, currentY = 0;
 
-  // Open Modal directly on click of content (or content side of split ads)
+  // Open Modal directly on click of content
   cards.forEach((card) => {
     const adPos = card.getAttribute("data-ad-pos");
+    const adOverlayLink = card.querySelector(".ad-link-overlay");
+    const adUrl = adOverlayLink ? adOverlayLink.getAttribute("href") : null;
 
     // Skip full-page ad cards completely (they navigate externally via overlay)
     if (adPos === "full") return;
@@ -173,11 +176,34 @@ document.addEventListener("DOMContentLoaded", () => {
         const isMobile = window.innerWidth < 800;
         modalImgZoomed.style.width = isMobile ? "300vw" : "200vw";
 
+        // Remove old zoom overlays if any
+        const existingOverlay = modalImgWrapper.querySelector(".modal-ad-overlay");
+        if (existingOverlay) existingOverlay.remove();
+
+        // Inject ad overlay over zoomed image if this card has a split ad
+        if (adUrl && (adPos === "left" || adPos === "right")) {
+          const zoomOverlay = document.createElement("a");
+          zoomOverlay.className = `modal-ad-overlay ad-pos-${adPos}`;
+          zoomOverlay.href = adUrl;
+          zoomOverlay.target = "_blank";
+          zoomOverlay.rel = "noopener noreferrer";
+
+          // Intercept click on zoomed ad: only open link if user didn't drag/pan
+          zoomOverlay.addEventListener("click", (evt) => {
+            if (dragMoved) {
+              evt.preventDefault();
+              evt.stopPropagation();
+            }
+          });
+
+          modalImgWrapper.appendChild(zoomOverlay);
+        }
+
         // Reset offsets to dead center
         currentX = 0;
         currentY = 0;
         modalImgZoomed.style.transition = "none";
-        modalImgZoomed.style.transform = `translate3d(0px, 0px, 0px)`;
+        modalImgWrapper.style.transform = `translate3d(0px, 0px, 0px)`;
         
         modal.classList.add("active");
       });
@@ -200,7 +226,6 @@ document.addEventListener("DOMContentLoaded", () => {
     modalImgZoomed.addEventListener("dragstart", (e) => e.preventDefault());
   }
 
-  // Clamp helper to keep image edges from dragging past screen boundaries
   function clamp(val, min, max) {
     return Math.max(min, Math.min(max, val));
   }
@@ -209,12 +234,10 @@ document.addEventListener("DOMContentLoaded", () => {
   function startDrag(e) {
     if (!modalImgZoomed || !modal.classList.contains("active")) return;
     
-    // Prevent default touch/drag actions on mobile
     if (e.cancelable) e.preventDefault();
 
     isDragging = true;
     dragMoved = false;
-    modalImgZoomed.style.transition = "none"; // Remove transition so pan tracks 1:1 instantly
     
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
@@ -233,12 +256,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const rawX = clientX - startX;
     const rawY = clientY - startY;
 
-    // Check if movement exceeds 5px threshold to flag as active drag (vs static click)
     if (Math.abs(rawX - currentX) > 5 || Math.abs(rawY - currentY) > 5) {
       dragMoved = true;
     }
 
-    // Calculate maximum drag boundaries based on active image scale overflow
     const imgRect = modalImgZoomed.getBoundingClientRect();
     const maxDragX = Math.max(0, (imgRect.width - window.innerWidth) / 2);
     const maxDragY = Math.max(0, (imgRect.height - window.innerHeight) / 2);
@@ -246,31 +267,27 @@ document.addEventListener("DOMContentLoaded", () => {
     currentX = clamp(rawX, -maxDragX, maxDragX);
     currentY = clamp(rawY, -maxDragY, maxDragY);
 
-    modalImgZoomed.style.transform = `translate3d(${currentX}px, ${currentY}px, 0px)`;
+    modalImgWrapper.style.transform = `translate3d(${currentX}px, ${currentY}px, 0px)`;
   }
 
-  // Mouseup / Touchend: Release drag state instantly
   function endDrag() {
     if (!isDragging) return;
     isDragging = false;
   }
 
   if (modalPanContainer) {
-    // Start drag on mousedown/touchstart inside pan container
     modalPanContainer.addEventListener("mousedown", startDrag);
     modalPanContainer.addEventListener("touchstart", startDrag, { passive: false });
 
-    // Track movement globally on window so fast dragging doesn't break drag state
     window.addEventListener("mousemove", moveDrag);
     window.addEventListener("touchmove", moveDrag, { passive: false });
 
-    // Stop drag immediately on mouseup/touchend
     window.addEventListener("mouseup", endDrag);
     window.addEventListener("touchend", endDrag);
 
-    // Click handler: If user clicked/tapped without panning, close modal
-    modalPanContainer.addEventListener("click", () => {
-      if (!dragMoved) {
+    modalPanContainer.addEventListener("click", (e) => {
+      // If user clicked background or content without dragging, close modal
+      if (!dragMoved && !e.target.classList.contains("modal-ad-overlay")) {
         closeModal();
       }
     });
@@ -353,22 +370,26 @@ document.addEventListener("DOMContentLoaded", () => {
     return Promise.all(promises);
   }
 
-  // Sequential Mobile Intro Pipeline (Loop 1 First -> Background Downloads -> Synchronized Exit)
+  // Universal Intro Scroll Setup (Local & Live Compatible)
   window.addEventListener("load", async () => {
     let isDismissed = false;
-    const LOOP_DURATION = 3875; // Duration of one full loop cycle in ms (3.875s)
+    const startTime = Date.now();
+    const SVG_LOOP_DURATION = 4500; // Matches the exact 3.875s duration of loading-animation.svg
 
+    // 1. Force TOC container to start cleanly at top on load
     const tocWrapper = document.getElementById("toc-wrapper");
-    if (tocWrapper) tocWrapper.scrollTop = 0;
+    if (tocWrapper) {
+      tocWrapper.scrollTop = 0;
+    }
 
     const loadingOverlay = document.getElementById("loading-overlay");
-    const logoWrapper = document.getElementById("loading-logo-wrapper");
 
     const triggerSlowScroll = () => {
       const targetCard = document.getElementById(`img-section-${realImageCount}`);
       if (!targetCard) return;
 
       isTeleporting = true;
+
       const containerRect = streamContainer.getBoundingClientRect();
       const cardTrueCenter = targetCard.offsetTop + (targetCard.offsetHeight / 2);
       const targetScrollTop = cardTrueCenter - (containerRect.height / 2);
@@ -393,32 +414,10 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // 1. Fetch & inject SVG into loading wrapper
-    if (logoWrapper) {
-      try {
-        const response = await fetch("assets/loading-animation.svg");
-        if (response.ok) {
-          const svgText = await response.text();
-          logoWrapper.innerHTML = svgText;
-        }
-      } catch (e) {
-        console.warn("SVG fetch failed:", e);
-      }
-    }
+    // 2. Await all carousel image downloads
+    await waitForAllImages();
 
-    // 2. PHASE 1: Guarantee 1 full uninterrupted visual loop before starting network requests
-    await new Promise((resolve) => setTimeout(resolve, LOOP_DURATION));
-
-    // 3. PHASE 2: Start background asset downloads (images load while SVG loops smoothly)
-    const downloadStartTime = Date.now();
-
-    const imageLoadPromise = waitForAllImages();
-    const networkTimeoutPromise = new Promise((resolve) => setTimeout(resolve, 4000));
-
-    // Race image downloads against a 4s mobile network safety cap
-    await Promise.race([imageLoadPromise, networkTimeoutPromise]);
-
-    // Align initial carousel scroll position behind overlay silently
+    // 3. Align initial scroll position behind overlay silently
     const startCardIndex = Math.max(0, realImageCount - 5);
     const startCard = document.getElementById(`img-section-${startCardIndex}`);
     if (startCard) {
@@ -430,12 +429,14 @@ document.addEventListener("DOMContentLoaded", () => {
       isTeleporting = false;
     }
 
-    // 4. PHASE 3: Calculate remaining time in the active loop cycle for a perfect exit transition
-    const downloadDuration = Date.now() - downloadStartTime;
-    const currentLoopProgress = downloadDuration % LOOP_DURATION;
-    const timeToNextLoopBoundary = currentLoopProgress === 0 ? 0 : (LOOP_DURATION - currentLoopProgress);
-
-    setTimeout(dismissOverlay, timeToNextLoopBoundary);
+    // 4. Ensure the animation plays for at least 1 full 3.875s visual cycle
+    const elapsedTime = Date.now() - startTime;
+    if (elapsedTime < SVG_LOOP_DURATION) {
+      setTimeout(dismissOverlay, SVG_LOOP_DURATION - elapsedTime);
+    } else {
+      const remainingForCurrentLoop = SVG_LOOP_DURATION - (elapsedTime % SVG_LOOP_DURATION);
+      setTimeout(dismissOverlay, remainingForCurrentLoop);
+    }
   });
 
   // Dynamic Wheel Effect and Dropshadow Calculation
