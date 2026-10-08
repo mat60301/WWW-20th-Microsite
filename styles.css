@@ -98,6 +98,14 @@ body {
   object-fit: contain;
 }
 
+/* Force GPU Compositing Layer for Inline SVG & Embedded Keyframes */
+.loading-logo-wrapper svg {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
 /* Responsive adjustment for mobile screens */
 @media (max-width: 799px) {
   .loading-logo-wrapper {

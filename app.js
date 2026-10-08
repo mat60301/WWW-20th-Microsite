@@ -356,7 +356,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Sequential Mobile Intro Pipeline (Loop 1 First -> Background Downloads -> Synchronized Exit)
   window.addEventListener("load", async () => {
     let isDismissed = false;
-    const LOOP_DURATION = 2000; // Duration of one full loop cycle in ms (2.0s)
+    const LOOP_DURATION = 3875; // Duration of one full loop cycle in ms (3.875s)
 
     const tocWrapper = document.getElementById("toc-wrapper");
     if (tocWrapper) tocWrapper.scrollTop = 0;
