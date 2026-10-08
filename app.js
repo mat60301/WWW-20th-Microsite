@@ -353,18 +353,15 @@ document.addEventListener("DOMContentLoaded", () => {
     return Promise.all(promises);
   }
 
-  // Mobile-Optimized Intro Scroll Setup with Robust Hybrid Timing & Safety Net
+  // Universal Hardware-Safe Intro Scroll Setup
   window.addEventListener("load", async () => {
     let isDataReady = false;
     let isDismissed = false;
     const startTime = Date.now();
-    const SVG_LOOP_DURATION = 2000; // Single loop cycle duration in milliseconds (2.0 seconds)
+    const MIN_ANIMATION_TIME = 2200; // Guarantees 1 complete visual cycle (~2.2s)
 
-    // 1. Force TOC container to start cleanly at top on load
     const tocWrapper = document.getElementById("toc-wrapper");
-    if (tocWrapper) {
-      tocWrapper.scrollTop = 0;
-    }
+    if (tocWrapper) tocWrapper.scrollTop = 0;
 
     const loadingOverlay = document.getElementById("loading-overlay");
     const logoWrapper = document.getElementById("loading-logo-wrapper");
@@ -374,7 +371,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!targetCard) return;
 
       isTeleporting = true;
-
       const containerRect = streamContainer.getBoundingClientRect();
       const cardTrueCenter = targetCard.offsetTop + (targetCard.offsetHeight / 2);
       const targetScrollTop = cardTrueCenter - (containerRect.height / 2);
@@ -399,58 +395,30 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    function checkAndDismiss() {
-      if (!isDataReady) return;
-
-      const elapsedTime = Date.now() - startTime;
-      
-      // Enforce at least 1 full loop (2000ms minimum)
-      if (elapsedTime < SVG_LOOP_DURATION) {
-        const remainingForFirstLoop = SVG_LOOP_DURATION - elapsedTime;
-        setTimeout(dismissOverlay, remainingForFirstLoop);
-        return;
-      }
-
-      // If past 1 full loop, align dismissal with the current loop boundary
-      const currentLoopProgress = elapsedTime % SVG_LOOP_DURATION;
-      const remainingForCurrentLoop = currentLoopProgress === 0 ? 0 : (SVG_LOOP_DURATION - currentLoopProgress);
-
-      setTimeout(dismissOverlay, remainingForCurrentLoop);
-    }
-
-    // 2. Fetch SVG and inject inline so styling and sizing scale natively
+    // Load SVG asset directly
     if (logoWrapper) {
       try {
         const response = await fetch("assets/loading-animation.svg");
         if (response.ok) {
           const svgText = await response.text();
           logoWrapper.innerHTML = svgText;
-
-          const inlineSvg = logoWrapper.querySelector("svg");
-          if (inlineSvg) {
-            inlineSvg.classList.add("loading-logo-svg");
-          }
         }
-      } catch (err) {
-        console.warn("Could not inline SVG:", err);
+      } catch (e) {
+        console.warn(e);
       }
     }
 
-    // 3. Safety Fallback Timeout (6 Seconds): Force dismiss if an image hangs
-    const safetyTimeout = setTimeout(() => {
-      if (!isDismissed) {
-        console.warn("Image load threshold timed out. Executing safety fallback dismissal.");
-        isDataReady = true;
-        dismissOverlay();
-      }
-    }, 6000);
+    // Safety net fallback timer (5 seconds max)
+    const safetyTimer = setTimeout(() => {
+      dismissOverlay();
+    }, 5000);
 
-    // 4. Await all carousel image downloads
+    // Await images
     await waitForAllImages();
-    clearTimeout(safetyTimeout); // Clear fallback timer if images finish cleanly
+    clearTimeout(safetyTimer);
     isDataReady = true;
 
-    // Align initial scroll position behind white overlay silently
+    // Align initial position behind overlay
     const startCardIndex = Math.max(0, realImageCount - 5);
     const startCard = document.getElementById(`img-section-${startCardIndex}`);
     if (startCard) {
@@ -462,8 +430,14 @@ document.addEventListener("DOMContentLoaded", () => {
       isTeleporting = false;
     }
 
-    // Evaluate timing and dismiss seamlessly
-    checkAndDismiss();
+    // Calculate elapsed time & enforce completion of current loop boundary
+    const elapsed = Date.now() - startTime;
+    if (elapsed < MIN_ANIMATION_TIME) {
+      setTimeout(dismissOverlay, MIN_ANIMATION_TIME - elapsed);
+    } else {
+      const remainingInCycle = MIN_ANIMATION_TIME - (elapsed % MIN_ANIMATION_TIME);
+      setTimeout(dismissOverlay, remainingInCycle);
+    }
   });
 
   // Dynamic Wheel Effect and Dropshadow Calculation
