@@ -353,9 +353,10 @@ document.addEventListener("DOMContentLoaded", () => {
     return Promise.all(promises);
   }
 
-  // Initial Scroll Setup Driven by Actual Animation Loop Completion
+  // Initial Scroll Setup Driven by Inline SVG Loop Completion with 1-Loop Minimum
   window.addEventListener("load", async () => {
     let isDataReady = false;
+    let hasCompletedAtLeastOneLoop = false;
     let isDismissed = false;
 
     // 1. Force TOC container to start cleanly at top on load
@@ -365,7 +366,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const loadingOverlay = document.getElementById("loading-overlay");
-    const svgObject = document.getElementById("loading-svg-object");
+    const logoWrapper = document.getElementById("loading-logo-wrapper");
 
     const triggerSlowScroll = () => {
       const targetCard = document.getElementById(`img-section-${realImageCount}`);
@@ -386,10 +387,9 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     function dismissOverlayIfReady() {
-      console.log("[SVG Debug] dismissOverlayIfReady called. isDataReady:", isDataReady, "isDismissed:", isDismissed);
-      if (isDataReady && !isDismissed) {
+      // Only dismiss if BOTH the images are cached/loaded AND at least 1 animation loop has completed
+      if (isDataReady && hasCompletedAtLeastOneLoop && !isDismissed) {
         isDismissed = true;
-        console.log("[SVG Debug] Dismissing overlay now!");
         if (loadingOverlay) {
           loadingOverlay.classList.add("is-hidden");
           setTimeout(triggerSlowScroll, 200);
@@ -399,48 +399,40 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    function listenToSVGLoops() {
+    function handleLoopEnd() {
+      hasCompletedAtLeastOneLoop = true;
+      dismissOverlayIfReady();
+    }
+
+    // 2. Fetch SVG and inject inline so JS has native event access
+    if (logoWrapper) {
       try {
-        const svgDoc = svgObject.contentDocument || svgObject.getSVGDocument();
-        if (!svgDoc) {
-          console.log("[SVG Debug] Could not access svgDoc");
-          return;
-        }
+        const response = await fetch("assets/loading-animation.svg");
+        const svgText = await response.text();
+        logoWrapper.innerHTML = svgText;
 
-        const smilAnims = svgDoc.querySelectorAll("animate, animateTransform, animateMotion");
-        console.log("[SVG Debug] Found SMIL animation elements:", smilAnims.length);
+        const inlineSvg = logoWrapper.querySelector("svg");
+        if (inlineSvg) {
+          inlineSvg.classList.add("loading-logo-svg");
 
-        if (smilAnims.length > 0) {
-          smilAnims.forEach((anim, i) => {
-            anim.addEventListener("repeatEvent", (e) => {
-              console.log(`[SVG Debug] SMIL repeatEvent fired on anim #${i}`, e);
-              dismissOverlayIfReady();
+          // SMIL SVG loop completion listener
+          const smilAnims = inlineSvg.querySelectorAll("animate, animateTransform, animateMotion");
+          if (smilAnims.length > 0) {
+            smilAnims.forEach((anim) => {
+              anim.addEventListener("repeatEvent", handleLoopEnd);
+              anim.addEventListener("endEvent", handleLoopEnd);
             });
-            anim.addEventListener("endEvent", (e) => {
-              console.log(`[SVG Debug] SMIL endEvent fired on anim #${i}`, e);
-              dismissOverlayIfReady();
-            });
-          });
-        }
+          }
 
-        svgDoc.addEventListener("animationiteration", (e) => {
-          console.log("[SVG Debug] CSS animationiteration event fired inside SVG", e);
-          dismissOverlayIfReady();
-        });
-      } catch (e) {
-        console.warn("[SVG Debug] Error attaching listeners:", e);
+          // CSS Keyframes loop completion listener
+          inlineSvg.addEventListener("animationiteration", handleLoopEnd);
+        }
+      } catch (err) {
+        console.warn("Could not inline SVG:", err);
       }
     }
 
-    if (svgObject) {
-      if (svgObject.contentDocument) {
-        listenToSVGLoops();
-      } else {
-        svgObject.addEventListener("load", listenToSVGLoops);
-      }
-    }
-
-    // 3. Await all carousel image downloads
+    // 3. Await all carousel image downloads (resolves instantly if cached)
     await waitForAllImages();
     isDataReady = true;
 
@@ -456,11 +448,8 @@ document.addEventListener("DOMContentLoaded", () => {
       isTeleporting = false;
     }
 
-    // 4. Fallback check: If the loop event already fired before images finished,
-    // or if DOM access was restricted, dismiss after a brief safety timeout.
-    setTimeout(() => {
-      dismissOverlayIfReady();
-    }, 1500);
+    // Attempt dismissal (if loop already finished prior to this line)
+    dismissOverlayIfReady();
   });
 
   // Dynamic Wheel Effect and Dropshadow Calculation
