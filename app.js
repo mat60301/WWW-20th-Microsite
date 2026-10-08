@@ -353,13 +353,12 @@ document.addEventListener("DOMContentLoaded", () => {
     return Promise.all(promises);
   }
 
-  // Initial Scroll Setup Driven by Inline SVG Loop Completion with Debugging & Safety Net
+  // Mobile-Optimized Intro Scroll Setup with Robust Hybrid Timing & Safety Net
   window.addEventListener("load", async () => {
     let isDataReady = false;
-    let hasCompletedAtLeastOneLoop = false;
     let isDismissed = false;
-
-    console.log("[SVG Debug] Page load event triggered.");
+    const startTime = Date.now();
+    const SVG_LOOP_DURATION = 2000; // Single loop cycle duration in milliseconds (2.0 seconds)
 
     // 1. Force TOC container to start cleanly at top on load
     const tocWrapper = document.getElementById("toc-wrapper");
@@ -371,7 +370,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const logoWrapper = document.getElementById("loading-logo-wrapper");
 
     const triggerSlowScroll = () => {
-      console.log("[SVG Debug] triggerSlowScroll initiated.");
       const targetCard = document.getElementById(`img-section-${realImageCount}`);
       if (!targetCard) return;
 
@@ -389,65 +387,68 @@ document.addEventListener("DOMContentLoaded", () => {
       }, 3100);
     };
 
-    function dismissOverlayIfReady(reason = "normal") {
-      console.log(`[SVG Debug] dismissOverlayIfReady called (${reason}). isDataReady:`, isDataReady, "hasCompletedAtLeastOneLoop:", hasCompletedAtLeastOneLoop, "isDismissed:", isDismissed);
-      if (isDataReady && (hasCompletedAtLeastOneLoop || reason === "safety-timeout") && !isDismissed) {
-        isDismissed = true;
-        console.log(`[SVG Debug] Dismissing overlay now via: ${reason}`);
-        if (loadingOverlay) {
-          loadingOverlay.classList.add("is-hidden");
-          setTimeout(triggerSlowScroll, 200);
-        } else {
-          triggerSlowScroll();
-        }
+    function dismissOverlay() {
+      if (isDismissed) return;
+      isDismissed = true;
+
+      if (loadingOverlay) {
+        loadingOverlay.classList.add("is-hidden");
+        setTimeout(triggerSlowScroll, 200);
+      } else {
+        triggerSlowScroll();
       }
     }
 
-    function handleLoopEnd(eventType) {
-      console.log(`[SVG Debug] Loop end detected via event: ${eventType}`);
-      hasCompletedAtLeastOneLoop = true;
-      dismissOverlayIfReady("loop-event");
+    function checkAndDismiss() {
+      if (!isDataReady) return;
+
+      const elapsedTime = Date.now() - startTime;
+      
+      // Enforce at least 1 full loop (2000ms minimum)
+      if (elapsedTime < SVG_LOOP_DURATION) {
+        const remainingForFirstLoop = SVG_LOOP_DURATION - elapsedTime;
+        setTimeout(dismissOverlay, remainingForFirstLoop);
+        return;
+      }
+
+      // If past 1 full loop, align dismissal with the current loop boundary
+      const currentLoopProgress = elapsedTime % SVG_LOOP_DURATION;
+      const remainingForCurrentLoop = currentLoopProgress === 0 ? 0 : (SVG_LOOP_DURATION - currentLoopProgress);
+
+      setTimeout(dismissOverlay, remainingForCurrentLoop);
     }
 
-    // 2. Fetch SVG and inject inline so JS has native event access
+    // 2. Fetch SVG and inject inline so styling and sizing scale natively
     if (logoWrapper) {
       try {
-        console.log("[SVG Debug] Attempting to fetch assets/loading-animation.svg...");
         const response = await fetch("assets/loading-animation.svg");
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const svgText = await response.text();
-        logoWrapper.innerHTML = svgText;
-        console.log("[SVG Debug] SVG successfully fetched and injected inline.");
+        if (response.ok) {
+          const svgText = await response.text();
+          logoWrapper.innerHTML = svgText;
 
-        const inlineSvg = logoWrapper.querySelector("svg");
-        if (inlineSvg) {
-          inlineSvg.classList.add("loading-logo-svg");
-
-          const smilAnims = inlineSvg.querySelectorAll("animate, animateTransform, animateMotion");
-          console.log("[SVG Debug] Found SMIL anim elements:", smilAnims.length);
-
-          if (smilAnims.length > 0) {
-            smilAnims.forEach((anim) => {
-              anim.addEventListener("repeatEvent", () => handleLoopEnd("SMIL repeatEvent"));
-              anim.addEventListener("endEvent", () => handleLoopEnd("SMIL endEvent"));
-            });
+          const inlineSvg = logoWrapper.querySelector("svg");
+          if (inlineSvg) {
+            inlineSvg.classList.add("loading-logo-svg");
           }
-
-          inlineSvg.addEventListener("animationiteration", () => handleLoopEnd("CSS animationiteration"));
         }
       } catch (err) {
-        console.warn("[SVG Debug] Fetch/Inline failed, enabling instant loop flag:", err);
-        hasCompletedAtLeastOneLoop = true;
+        console.warn("Could not inline SVG:", err);
       }
     }
 
-    // 3. Await all carousel image downloads
-    console.log("[SVG Debug] Waiting for all images to load...");
+    // 3. Safety Fallback Timeout (6 Seconds): Force dismiss if an image hangs
+    const safetyTimeout = setTimeout(() => {
+      if (!isDismissed) {
+        console.warn("Image load threshold timed out. Executing safety fallback dismissal.");
+        isDataReady = true;
+        dismissOverlay();
+      }
+    }, 6000);
+
+    // 4. Await all carousel image downloads
     await waitForAllImages();
+    clearTimeout(safetyTimeout); // Clear fallback timer if images finish cleanly
     isDataReady = true;
-    console.log("[SVG Debug] All images finished loading! isDataReady = true");
 
     // Align initial scroll position behind white overlay silently
     const startCardIndex = Math.max(0, realImageCount - 5);
@@ -461,17 +462,8 @@ document.addEventListener("DOMContentLoaded", () => {
       isTeleporting = false;
     }
 
-    // Try dismissing if loop finished before images resolved
-    dismissOverlayIfReady("images-loaded-check");
-
-    // 4. Safety net timeout (4s): Guarantees overlay dismisses even if loop events never fire
-    setTimeout(() => {
-      if (!isDismissed) {
-        console.log("[SVG Debug] Safety net 4s timeout triggered.");
-        hasCompletedAtLeastOneLoop = true;
-        dismissOverlayIfReady("safety-timeout");
-      }
-    }, 4000);
+    // Evaluate timing and dismiss seamlessly
+    checkAndDismiss();
   });
 
   // Dynamic Wheel Effect and Dropshadow Calculation
