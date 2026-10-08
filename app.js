@@ -353,41 +353,24 @@ document.addEventListener("DOMContentLoaded", () => {
     return Promise.all(promises);
   }
 
-  // Initial Scroll Setup with 5-Card, 3-Second Intro Scroll
+  // Initial Scroll Setup Driven by Actual Animation Loop Completion
   window.addEventListener("load", async () => {
+    let isDataReady = false;
+    let isDismissed = false;
+
     // 1. Force TOC container to start cleanly at top on load
     const tocWrapper = document.getElementById("toc-wrapper");
     if (tocWrapper) {
       tocWrapper.scrollTop = 0;
     }
 
-    // 2. Force await for all carousel image dimensions to register on server connections
-    await waitForAllImages();
-
-    const targetCard = document.getElementById(`img-section-${realImageCount}`);
-    if (!targetCard) return;
-
-    const startCardIndex = Math.max(0, realImageCount - 5);
-    const startCard = document.getElementById(`img-section-${startCardIndex}`);
-
-    // Lock teleportation temporarily during initial alignment
-    isTeleporting = true;
-
-    // Snap silently to start card behind white overlay using stable offsetTop
-    if (startCard) {
-      const containerRect = streamContainer.getBoundingClientRect();
-      const cardTrueCenter = startCard.offsetTop + (startCard.offsetHeight / 2);
-      streamContainer.scrollTop = cardTrueCenter - (containerRect.height / 2);
-    }
-
-    updateWheelEffect();
-    isTeleporting = false;
-
-    // 3. Dismiss loading overlay & trigger 3-second roll into Entry 0
     const loadingOverlay = document.getElementById("loading-overlay");
+    const svgObject = document.getElementById("loading-svg-object");
 
     const triggerSlowScroll = () => {
-      // Lock teleport jumps during active 3s intro animation
+      const targetCard = document.getElementById(`img-section-${realImageCount}`);
+      if (!targetCard) return;
+
       isTeleporting = true;
 
       const containerRect = streamContainer.getBoundingClientRect();
@@ -398,18 +381,86 @@ document.addEventListener("DOMContentLoaded", () => {
 
       setTimeout(() => {
         isTeleporting = false;
-        isInitialLoad = false; // Enables auto-scrolling for all subsequent user navigation
+        isInitialLoad = false;
       }, 3100);
     };
 
-    if (loadingOverlay) {
-      setTimeout(() => {
-        loadingOverlay.classList.add("is-hidden");
-        setTimeout(triggerSlowScroll, 200);
-      }, 150);
-    } else {
-      triggerSlowScroll();
+    function dismissOverlayIfReady() {
+      console.log("[SVG Debug] dismissOverlayIfReady called. isDataReady:", isDataReady, "isDismissed:", isDismissed);
+      if (isDataReady && !isDismissed) {
+        isDismissed = true;
+        console.log("[SVG Debug] Dismissing overlay now!");
+        if (loadingOverlay) {
+          loadingOverlay.classList.add("is-hidden");
+          setTimeout(triggerSlowScroll, 200);
+        } else {
+          triggerSlowScroll();
+        }
+      }
     }
+
+    function listenToSVGLoops() {
+      try {
+        const svgDoc = svgObject.contentDocument || svgObject.getSVGDocument();
+        if (!svgDoc) {
+          console.log("[SVG Debug] Could not access svgDoc");
+          return;
+        }
+
+        const smilAnims = svgDoc.querySelectorAll("animate, animateTransform, animateMotion");
+        console.log("[SVG Debug] Found SMIL animation elements:", smilAnims.length);
+
+        if (smilAnims.length > 0) {
+          smilAnims.forEach((anim, i) => {
+            anim.addEventListener("repeatEvent", (e) => {
+              console.log(`[SVG Debug] SMIL repeatEvent fired on anim #${i}`, e);
+              dismissOverlayIfReady();
+            });
+            anim.addEventListener("endEvent", (e) => {
+              console.log(`[SVG Debug] SMIL endEvent fired on anim #${i}`, e);
+              dismissOverlayIfReady();
+            });
+          });
+        }
+
+        svgDoc.addEventListener("animationiteration", (e) => {
+          console.log("[SVG Debug] CSS animationiteration event fired inside SVG", e);
+          dismissOverlayIfReady();
+        });
+      } catch (e) {
+        console.warn("[SVG Debug] Error attaching listeners:", e);
+      }
+    }
+
+    if (svgObject) {
+      if (svgObject.contentDocument) {
+        listenToSVGLoops();
+      } else {
+        svgObject.addEventListener("load", listenToSVGLoops);
+      }
+    }
+
+    // 3. Await all carousel image downloads
+    await waitForAllImages();
+    isDataReady = true;
+
+    // Align initial scroll position behind white overlay silently
+    const startCardIndex = Math.max(0, realImageCount - 5);
+    const startCard = document.getElementById(`img-section-${startCardIndex}`);
+    if (startCard) {
+      isTeleporting = true;
+      const containerRect = streamContainer.getBoundingClientRect();
+      const cardTrueCenter = startCard.offsetTop + (startCard.offsetHeight / 2);
+      streamContainer.scrollTop = cardTrueCenter - (containerRect.height / 2);
+      updateWheelEffect();
+      isTeleporting = false;
+    }
+
+    // 4. Fallback check: If the loop event already fired before images finished,
+    // or if DOM access was restricted, dismiss after a brief safety timeout.
+    setTimeout(() => {
+      dismissOverlayIfReady();
+    }, 1500);
   });
 
   // Dynamic Wheel Effect and Dropshadow Calculation
