@@ -644,6 +644,8 @@ body {
   bottom: 0;
   z-index: 2050;
   cursor: pointer;
+  pointer-events: auto !important; /* Ensures touch taps register on mobile */
+  touch-action: manipulation;
 }
 
 .modal-ad-overlay.ad-pos-left {

@@ -125,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================================================
-  // DIRECT ZOOM & DRAG-TO-PAN LIGHTBOX (With Zoomed Split-Ad Support)
+  // DIRECT ZOOM & DRAG-TO-PAN LIGHTBOX (Touch & Mobile Fixed)
   // ==========================================================================
   const modal = document.getElementById("image-modal");
   const modalPanContainer = document.getElementById("modal-pan-container");
@@ -144,26 +144,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const adOverlayLink = card.querySelector(".ad-link-overlay");
     const adUrl = adOverlayLink ? adOverlayLink.getAttribute("href") : null;
 
-    // Skip full-page ad cards completely (they navigate externally via overlay)
     if (adPos === "full") return;
 
     const img = card.querySelector("img");
     if (img) {
       img.addEventListener("click", (e) => {
-        // If an overlay element handles an ad click on this spread, ignore zoom
         if (e.target.classList.contains("ad-link-overlay")) return;
-
         if (!modal || !modalImgZoomed) return;
 
-        // 1. Immediately open with the low-res cached image
         modalImgZoomed.src = img.src;
         modalImgZoomed.alt = img.alt;
 
-        // 2. Derive HD URL by swapping 'images50' with 'imagesZoom'
         const lowResSrc = img.src;
         const highResSrc = lowResSrc.replace("/images50/", "/imagesZoom/").replace("images50/", "imagesZoom/");
 
-        // 3. Swap in high-res asset asynchronously on demand
         const hdLoader = new Image();
         hdLoader.src = highResSrc;
         hdLoader.onload = () => {
@@ -172,7 +166,6 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         };
         
-        // Set dynamic zoom scale based on viewport width (< 800px = Mobile)
         const isMobile = window.innerWidth < 800;
         modalImgZoomed.style.width = isMobile ? "300vw" : "200vw";
 
@@ -188,7 +181,14 @@ document.addEventListener("DOMContentLoaded", () => {
           zoomOverlay.target = "_blank";
           zoomOverlay.rel = "noopener noreferrer";
 
-          // Intercept click on zoomed ad: only open link if user didn't drag/pan
+          // On touch end, if user didn't drag/pan, open ad link manually
+          zoomOverlay.addEventListener("touchend", (evt) => {
+            if (!dragMoved) {
+              window.open(adUrl, "_blank", "noopener,noreferrer");
+              evt.stopPropagation();
+            }
+          });
+
           zoomOverlay.addEventListener("click", (evt) => {
             if (dragMoved) {
               evt.preventDefault();
@@ -199,7 +199,7 @@ document.addEventListener("DOMContentLoaded", () => {
           modalImgWrapper.appendChild(zoomOverlay);
         }
 
-        // Reset offsets to dead center
+        // Reset offsets to center
         currentX = 0;
         currentY = 0;
         modalImgZoomed.style.transition = "none";
@@ -221,7 +221,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Prevent browser native image drag preview ghost
   if (modalImgZoomed) {
     modalImgZoomed.addEventListener("dragstart", (e) => e.preventDefault());
   }
@@ -230,14 +229,12 @@ document.addEventListener("DOMContentLoaded", () => {
     return Math.max(min, Math.min(max, val));
   }
 
-  // Mousedown / Touchstart: Immediately initiate drag mode
+  // Mousedown / Touchstart: Initiate drag tracking without canceling touch clicks
   function startDrag(e) {
     if (!modalImgZoomed || !modal.classList.contains("active")) return;
-    
-    if (e.cancelable) e.preventDefault();
 
     isDragging = true;
-    dragMoved = false;
+    dragMoved = false; // Reset drag movement tracker
     
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
@@ -246,7 +243,7 @@ document.addEventListener("DOMContentLoaded", () => {
     startY = clientY - currentY;
   }
 
-  // Mousemove / Touchmove: Pan live as cursor moves
+  // Mousemove / Touchmove: Pan live as cursor/finger moves
   function moveDrag(e) {
     if (!isDragging || !modalImgZoomed) return;
     
@@ -256,8 +253,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const rawX = clientX - startX;
     const rawY = clientY - startY;
 
+    // Movement threshold (> 5px) marks action as a pan gesture rather than a tap/click
     if (Math.abs(rawX - currentX) > 5 || Math.abs(rawY - currentY) > 5) {
       dragMoved = true;
+      if (e.cancelable) e.preventDefault(); // Prevent page scroll ONLY while actively panning
     }
 
     const imgRect = modalImgZoomed.getBoundingClientRect();
@@ -277,7 +276,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (modalPanContainer) {
     modalPanContainer.addEventListener("mousedown", startDrag);
-    modalPanContainer.addEventListener("touchstart", startDrag, { passive: false });
+    modalPanContainer.addEventListener("touchstart", startDrag, { passive: true });
 
     window.addEventListener("mousemove", moveDrag);
     window.addEventListener("touchmove", moveDrag, { passive: false });
@@ -285,10 +284,19 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("mouseup", endDrag);
     window.addEventListener("touchend", endDrag);
 
-    modalPanContainer.addEventListener("click", (e) => {
-      // If user clicked background or content without dragging, close modal
+    // Universal tap/click handler for mobile & desktop to dismiss lightbox
+    function handleModalDismiss(e) {
       if (!dragMoved && !e.target.classList.contains("modal-ad-overlay")) {
         closeModal();
+      }
+    }
+
+    modalPanContainer.addEventListener("click", handleModalDismiss);
+    modalPanContainer.addEventListener("touchend", (e) => {
+      // Direct touch dismiss if user tapped without dragging
+      if (!dragMoved && !e.target.classList.contains("modal-ad-overlay")) {
+        closeModal();
+        e.preventDefault();
       }
     });
   }
